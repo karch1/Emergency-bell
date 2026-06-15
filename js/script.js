@@ -9,32 +9,29 @@ const firebaseConfig = {
     databaseURL: "https://emergency-bell-76a97-default-rtdb.asia-southeast1.firebasedatabase.app"
 };
 
-// 2. 매핑 정보
 const userMapping = {
     "choae000@gmail.com": "대성",
     "parkhani2026@gmail.com": "승환",
     "95woosik95@gmail.com": "우식"
 };
 
-// 3. 전역 변수
 let db, auth, myName;
 
-// 4. 앱 초기화 (최상단 실행)
+// 초기화
 firebase.initializeApp(firebaseConfig);
 db = firebase.database();
 auth = firebase.auth();
 
-// 리다이렉트 결과 처리 (가장 먼저 실행되어 상태 복구)
-auth.getRedirectResult().catch((e) => console.error("Redirect Error:", e));
-
 // 5. 로그인 상태 체크 및 화면 제어
 window.addEventListener('DOMContentLoaded', () => {
-    // 초기 상태: 일단 모두 숨김
+    // 1. 화면 초기화: 로그인 상태 확인 전까지는 아무것도 보여주지 않음
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app-screen').style.display = 'none';
 
+    // 2. 인증 상태 변화 감지
     auth.onAuthStateChanged((user) => {
         if (user) {
+            // 로그인 상태이면 매핑 확인
             if (userMapping[user.email]) {
                 myName = userMapping[user.email];
                 document.getElementById('login-screen').style.display = 'none';
@@ -45,14 +42,14 @@ window.addEventListener('DOMContentLoaded', () => {
                 auth.signOut();
             }
         } else {
-            // 로그인 상태가 아닐 때만 로그인 버튼 표시
+            // 로그아웃 상태일 때만 로그인 화면 표시
             document.getElementById('login-screen').style.display = 'block';
             document.getElementById('app-screen').style.display = 'none';
         }
     });
 });
 
-// 6. 로그인 함수 (리다이렉트)
+// 6. 로그인 함수 (Redirect 사용 시 결과는 onAuthStateChanged가 처리함)
 function login() {
     const provider = new firebase.auth.GoogleAuthProvider();
     auth.signInWithRedirect(provider);
@@ -78,7 +75,7 @@ function loadChatData() {
     });
 }
 
-// 8. 기능 함수
+// 8. 기능 함수들
 function sendCall(target) {
     if (!myName) return;
     db.ref('calls').push({ from: myName, to: target, time: Date.now() });

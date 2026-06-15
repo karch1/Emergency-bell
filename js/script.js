@@ -9,7 +9,7 @@ const firebaseConfig = {
     databaseURL: "https://emergency-bell-76a97-default-rtdb.asia-southeast1.firebasedatabase.app"
 };
 
-// 2. 3명의 매핑 정보
+// 2. 매핑 정보
 const userMapping = {
     "choae000@gmail.com": "대성",
     "parkhani2026@gmail.com": "승환",
@@ -19,18 +19,20 @@ const userMapping = {
 // 3. 전역 변수
 let db, auth, myName;
 
-// 4. 앱 초기화
+// 4. 앱 초기화 (최상단 실행)
 firebase.initializeApp(firebaseConfig);
 db = firebase.database();
 auth = firebase.auth();
 
-// 리다이렉트 후 결과 확인 (필수)
-auth.getRedirectResult().catch((error) => {
-    console.error("리다이렉트 로그인 실패:", error);
-});
+// 리다이렉트 결과 처리 (가장 먼저 실행되어 상태 복구)
+auth.getRedirectResult().catch((e) => console.error("Redirect Error:", e));
 
 // 5. 로그인 상태 체크 및 화면 제어
 window.addEventListener('DOMContentLoaded', () => {
+    // 초기 상태: 일단 모두 숨김
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app-screen').style.display = 'none';
+
     auth.onAuthStateChanged((user) => {
         if (user) {
             if (userMapping[user.email]) {
@@ -43,14 +45,14 @@ window.addEventListener('DOMContentLoaded', () => {
                 auth.signOut();
             }
         } else {
-            // 로그인 상태가 아닐 때만 로그인 화면 표시
+            // 로그인 상태가 아닐 때만 로그인 버튼 표시
             document.getElementById('login-screen').style.display = 'block';
             document.getElementById('app-screen').style.display = 'none';
         }
     });
 });
 
-// 6. 로그인 함수
+// 6. 로그인 함수 (리다이렉트)
 function login() {
     const provider = new firebase.auth.GoogleAuthProvider();
     auth.signInWithRedirect(provider);
@@ -76,7 +78,7 @@ function loadChatData() {
     });
 }
 
-// 8. 기능 함수들
+// 8. 기능 함수
 function sendCall(target) {
     if (!myName) return;
     db.ref('calls').push({ from: myName, to: target, time: Date.now() });

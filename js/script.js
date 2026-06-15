@@ -19,17 +19,18 @@ const userMapping = {
 // 3. 전역 변수
 let db, auth, myName;
 
-// 4. 앱 초기화 (로그인 체크 전 화면을 모두 숨김)
+// 4. 앱 초기화
+firebase.initializeApp(firebaseConfig);
+db = firebase.database();
+auth = firebase.auth();
+
+// 리다이렉트 후 결과 확인 (필수)
+auth.getRedirectResult().catch((error) => {
+    console.error("리다이렉트 로그인 실패:", error);
+});
+
+// 5. 로그인 상태 체크 및 화면 제어
 window.addEventListener('DOMContentLoaded', () => {
-    firebase.initializeApp(firebaseConfig);
-    db = firebase.database();
-    auth = firebase.auth();
-
-    // 초기 상태: 화면 숨김
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('app-screen').style.display = 'none';
-
-    // 로그인 상태 체크
     auth.onAuthStateChanged((user) => {
         if (user) {
             if (userMapping[user.email]) {
@@ -42,25 +43,20 @@ window.addEventListener('DOMContentLoaded', () => {
                 auth.signOut();
             }
         } else {
-            // 명시적으로 로그인 화면만 표시
+            // 로그인 상태가 아닐 때만 로그인 화면 표시
             document.getElementById('login-screen').style.display = 'block';
             document.getElementById('app-screen').style.display = 'none';
         }
     });
 });
 
-// 5. 로그인 실행 함수 (리다이렉트 방식으로 변경)
+// 6. 로그인 함수
 function login() {
     const provider = new firebase.auth.GoogleAuthProvider();
-    
-    // 리다이렉트 방식으로 변경하여 Cross-Origin 정책 문제 회피
-    auth.signInWithRedirect(provider).catch(e => {
-        console.error("로그인 에러:", e);
-        alert("로그인 중 오류가 발생했습니다: " + e.message);
-    });
+    auth.signInWithRedirect(provider);
 }
 
-// 6. 데이터 로딩 함수
+// 7. 데이터 로딩
 function loadChatData() {
     db.ref('chat').limitToLast(100).on('value', (snapshot) => {
         const chatBox = document.getElementById('chat-box');
@@ -80,18 +76,13 @@ function loadChatData() {
     });
 }
 
-// 7. 호출 전송 함수
+// 8. 기능 함수들
 function sendCall(target) {
     if (!myName) return;
-    db.ref('calls').push({
-        from: myName,
-        to: target,
-        time: Date.now()
-    });
+    db.ref('calls').push({ from: myName, to: target, time: Date.now() });
     alert(target + " 호출 완료!");
 }
 
-// 8. 채팅 전송 함수
 function sendMessage(text) {
     if (!myName) return;
     let mention = null;
@@ -99,15 +90,9 @@ function sendMessage(text) {
     else if (text.includes('우식')) mention = '우식';
     else if (text.includes('승환')) mention = '승환';
 
-    db.ref('chat').push({
-        sender: myName,
-        msg: text,
-        mention: mention,
-        time: Date.now()
-    });
+    db.ref('chat').push({ sender: myName, msg: text, mention: mention, time: Date.now() });
 }
 
-// 9. 채팅 엔터 이벤트
 function handleEnter(e) {
     if (e.key === 'Enter') {
         const input = document.getElementById('chatInput');

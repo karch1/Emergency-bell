@@ -24,6 +24,7 @@ window.addEventListener('DOMContentLoaded', () => {
     db = firebase.database();
     auth = firebase.auth();
 
+    // 로그인 상태 체크
     auth.onAuthStateChanged((user) => {
         if (user && userMapping[user.email]) {
             myName = userMapping[user.email];
@@ -31,13 +32,14 @@ window.addEventListener('DOMContentLoaded', () => {
             document.getElementById('app-screen').style.display = 'block';
             loadChatData();
         } else {
+            // 로그인되어 있지 않거나 허용되지 않은 사용자인 경우 로그인 화면 표시
             document.getElementById('login-screen').style.display = 'block';
             document.getElementById('app-screen').style.display = 'none';
         }
     });
 });
 
-// 5. 로그인 실행 함수
+// 5. 로그인 실행 함수 (버튼 클릭 시 작동)
 function login() {
     const provider = new firebase.auth.GoogleAuthProvider();
     auth.signInWithPopup(provider).catch(e => alert("로그인 실패: " + e.message));
@@ -52,10 +54,13 @@ function loadChatData() {
         snapshot.forEach((childSnapshot) => {
             const data = childSnapshot.val();
             const div = document.createElement('div');
+            
+            // 언급 시 스타일 강조
             if (myName && data.mention === myName) {
                 div.style.backgroundColor = '#fff3bf';
                 div.style.fontWeight = 'bold';
             }
+            
             div.innerText = `${data.sender}: ${data.msg}`;
             chatBox.appendChild(div);
         });

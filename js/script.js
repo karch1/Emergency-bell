@@ -15,7 +15,7 @@ const userMapping = {
     "95woosik95@gmail.com": "우식"
 };
 
-// 3. 전역 변수 선언
+// 3. 전역 변수
 let db, auth, myName;
 
 // 4. 앱 초기화
@@ -24,51 +24,48 @@ window.addEventListener('DOMContentLoaded', () => {
     db = firebase.database();
     auth = firebase.auth();
 
-    // 로그인 상태 체크
     auth.onAuthStateChanged((user) => {
-        if (user) {
-            // 로그인 되어 있을 때
-            if (userMapping[user.email]) {
-                myName = userMapping[user.email];
-                console.log(myName + "님 환영합니다!");
-            } else {
-                alert("허용되지 않은 사용자입니다.");
-                auth.signOut();
-            }
+        if (user && userMapping[user.email]) {
+            myName = userMapping[user.email];
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('app-screen').style.display = 'block';
+            loadChatData();
         } else {
-            // 로그인 되어 있지 않을 때 (팝업 방식으로 변경하여 무한 루프 방지)
-            const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider).catch((error) => {
-                console.error("로그인 실패:", error);
-            });
+            document.getElementById('login-screen').style.display = 'block';
+            document.getElementById('app-screen').style.display = 'none';
         }
     });
+});
 
-    // 실시간 데이터 불러오기
+// 5. 로그인 실행 함수
+function login() {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    auth.signInWithPopup(provider).catch(e => alert("로그인 실패: " + e.message));
+}
+
+// 6. 데이터 로딩 함수
+function loadChatData() {
     db.ref('chat').limitToLast(100).on('value', (snapshot) => {
         const chatBox = document.getElementById('chat-box');
         if (!chatBox) return;
-        chatBox.innerHTML = ''; 
-
+        chatBox.innerHTML = '';
         snapshot.forEach((childSnapshot) => {
             const data = childSnapshot.val();
             const div = document.createElement('div');
-
             if (myName && data.mention === myName) {
                 div.style.backgroundColor = '#fff3bf';
                 div.style.fontWeight = 'bold';
             }
-
             div.innerText = `${data.sender}: ${data.msg}`;
             chatBox.appendChild(div);
         });
         chatBox.scrollTop = chatBox.scrollHeight;
     });
-});
+}
 
-// 5. 호출 전송 함수
+// 7. 호출 전송 함수
 function sendCall(target) {
-    if (!myName) { alert("로그인 정보가 없습니다."); return; }
+    if (!myName) return;
     db.ref('calls').push({
         from: myName,
         to: target,
@@ -77,9 +74,9 @@ function sendCall(target) {
     alert(target + " 호출 완료!");
 }
 
-// 6. 채팅 전송 함수
+// 8. 채팅 전송 함수
 function sendMessage(text) {
-    if (!myName) { alert("로그인 정보가 없습니다."); return; }
+    if (!myName) return;
     let mention = null;
     if (text.includes('대성')) mention = '대성';
     else if (text.includes('우식')) mention = '우식';
@@ -93,7 +90,7 @@ function sendMessage(text) {
     });
 }
 
-// 7. 채팅 엔터 이벤트
+// 9. 채팅 엔터 이벤트
 function handleEnter(e) {
     if (e.key === 'Enter') {
         const input = document.getElementById('chatInput');

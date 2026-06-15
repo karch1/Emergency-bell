@@ -11,22 +11,27 @@
 
 <body>
 
-    <div class="container">
-        <div class="button-group">
-            <button class="btn" onclick="sendCall('우식')">우식</button>
-            <button class="btn" onclick="sendCall('승환')">승환</button>
-            <button class="btn" onclick="sendCall('대성')">대성</button>
-        </div>
+    <div id="login-screen" style="display:none; text-align:center; padding:50px;">
+        <h2>호출벨에 접속하려면 로그인이 필요합니다.</h2>
+        <button onclick="login()" style="padding:15px 30px; font-size:18px;">구글 로그인</button>
+    </div>
 
-        <div class="quick-group">
-            <button class="btn-sub" onclick="sendMessage('코ㄱ?')">쌈배ㄱ?</button>
-            <button class="btn-sub" onclick="sendMessage('모두')">모두</button>
-        </div>
-
-        <div id="chat-container">
-            <div id="chat-box"></div>
-            <div class="input-area">
-                <input type="text" id="chatInput" placeholder="메시지를 입력하세요..." onkeypress="handleEnter(event)">
+    <div id="app-screen" style="display:none;">
+        <div class="container">
+            <div class="button-group">
+                <button class="btn" onclick="sendCall('우식')">우식</button>
+                <button class="btn" onclick="sendCall('승환')">승환</button>
+                <button class="btn" onclick="sendCall('대성')">대성</button>
+            </div>
+            <div class="quick-group">
+                <button class="btn-sub" onclick="sendMessage('쌈배ㄱ?')">쌈배ㄱ?</button>
+                <button class="btn-sub" onclick="sendMessage('모두')">모두</button>
+            </div>
+            <div id="chat-container">
+                <div id="chat-box"></div>
+                <div class="input-area">
+                    <input type="text" id="chatInput" placeholder="메시지를 입력하세요..." onkeypress="handleEnter(event)">
+                </div>
             </div>
         </div>
     </div>

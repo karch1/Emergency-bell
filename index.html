@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>호출벨</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="button-group">
+            <button class="btn" onclick="sendCall('우식')">우식</button>
+            <button class="btn" onclick="sendCall('승환')">승환</button>
+            <button class="btn" onclick="sendCall('대성')">대성</button>
+        </div>
+
+        <div class="quick-group">
+            <button class="btn-sub" onclick="sendMessage('코ㄱ?')">코ㄱ?</button>
+            <button class="btn-sub" onclick="sendMessage('모두')">모두</button>
+        </div>
+
+        <div id="chat-container">
+            <div id="chat-box"></div>
+            <div class="input-area">
+                <input type="text" id="chatInput" placeholder="메시지를 입력하세요..." onkeypress="handleEnter(event)">
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+
+    <script src="js/script.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('서비스 워커 등록 성공'))
+                    .catch(err => console.log('서비스 워커 등록 실패', err));
+            });
+        }
+    </script>
+</body>
+
+</html>

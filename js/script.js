@@ -18,31 +18,43 @@ const userMapping = {
 // 3. 전역 변수
 let db, auth, myName;
 
-// 4. 앱 초기화
+// 4. 앱 초기화 (로그인 체크 전 화면을 모두 숨김)
 window.addEventListener('DOMContentLoaded', () => {
     firebase.initializeApp(firebaseConfig);
     db = firebase.database();
     auth = firebase.auth();
 
+    // 초기 상태: 화면 숨김
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app-screen').style.display = 'none';
+
     // 로그인 상태 체크
     auth.onAuthStateChanged((user) => {
-        if (user && userMapping[user.email]) {
-            myName = userMapping[user.email];
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('app-screen').style.display = 'block';
-            loadChatData();
+        if (user) {
+            if (userMapping[user.email]) {
+                myName = userMapping[user.email];
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('app-screen').style.display = 'block';
+                loadChatData();
+            } else {
+                alert("허용되지 않은 사용자입니다.");
+                auth.signOut();
+            }
         } else {
-            // 로그인되어 있지 않거나 허용되지 않은 사용자인 경우 로그인 화면 표시
+            // 명시적으로 로그인 화면만 표시
             document.getElementById('login-screen').style.display = 'block';
             document.getElementById('app-screen').style.display = 'none';
         }
     });
 });
 
-// 5. 로그인 실행 함수 (버튼 클릭 시 작동)
+// 5. 로그인 실행 함수
 function login() {
     const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithPopup(provider).catch(e => alert("로그인 실패: " + e.message));
+    auth.signInWithPopup(provider).catch(e => {
+        console.error("로그인 에러:", e);
+        alert("로그인 중 오류가 발생했습니다.");
+    });
 }
 
 // 6. 데이터 로딩 함수
@@ -54,13 +66,10 @@ function loadChatData() {
         snapshot.forEach((childSnapshot) => {
             const data = childSnapshot.val();
             const div = document.createElement('div');
-            
-            // 언급 시 스타일 강조
             if (myName && data.mention === myName) {
                 div.style.backgroundColor = '#fff3bf';
                 div.style.fontWeight = 'bold';
             }
-            
             div.innerText = `${data.sender}: ${data.msg}`;
             chatBox.appendChild(div);
         });

@@ -5,7 +5,8 @@ const firebaseConfig = {
     projectId: "emergency-bell-76a97",
     storageBucket: "emergency-bell-76a97.firebasestorage.app",
     messagingSenderId: "34978098145",
-    appId: "1:34978098145:web:28b63a1f9633f8818380a0"
+    appId: "1:34978098145:web:28b63a1f9633f8818380a0",
+    databaseURL: "https://emergency-bell-76a97-default-rtdb.asia-southeast1.firebasedatabase.app"
 };
 
 // 2. 3명의 매핑 정보
@@ -48,12 +49,14 @@ window.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// 5. 로그인 실행 함수
+// 5. 로그인 실행 함수 (리다이렉트 방식으로 변경)
 function login() {
     const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithPopup(provider).catch(e => {
+    
+    // 리다이렉트 방식으로 변경하여 Cross-Origin 정책 문제 회피
+    auth.signInWithRedirect(provider).catch(e => {
         console.error("로그인 에러:", e);
-        alert("로그인 중 오류가 발생했습니다.");
+        alert("로그인 중 오류가 발생했습니다: " + e.message);
     });
 }
 

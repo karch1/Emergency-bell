@@ -79,8 +79,6 @@ body {
     padding: 15px;
     overflow-y: auto;
     font-size: 14px;
-    display:flex;
-    flex-direction:column;
 }
 
 .input-area {

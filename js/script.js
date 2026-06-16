@@ -36,9 +36,15 @@ window.addEventListener('DOMContentLoaded', () => {
                 myName = userMapping[user.email];
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('app-screen').style.display = 'block';
+
                 loadChatData();
+                listenAlerts();
+                
             } else {
-                alert("허용되지 않은 사용자입니다.");
+                showAlert(
+                    "접근 거부",
+                    "허용되지 않은 사용자입니다."
+                );
                 auth.signOut();
             }
         } else {
@@ -58,8 +64,11 @@ function login() {
             console.log("로그인 성공:", result.user.email);
         })
         .catch((error) => {
-            alert("로그인 실패: " + error.message);
-        });
+    showAlert(
+        "로그인 실패",
+        error.message
+    );
+});
 }
 
 // 7. 데이터 로딩
@@ -71,14 +80,49 @@ function loadChatData() {
         snapshot.forEach((childSnapshot) => {
             const data = childSnapshot.val();
             const div = document.createElement('div');
-            if (myName && data.mention === myName) {
-                div.style.backgroundColor = '#fff3bf';
-                div.style.fontWeight = 'bold';
+
+            div.classList.add('chat-message');
+
+            if (data.sender === myName) {
+                div.classList.add('mine');
             }
-            div.innerText = `${data.sender}: ${data.msg}`;
+
+            if (myName && data.mention === myName) {
+                div.classList.add('mention');
+            }
+
+            div.innerHTML = `
+            <div class="sender">${data.sender}</div>
+            <div class="bubble">${data.msg}</div>
+            `;
+
             chatBox.appendChild(div);
-        });
+            });
         chatBox.scrollTop = chatBox.scrollHeight;
+    });
+}
+
+let alertInitialized = false;
+
+function listenAlerts() {
+    db.ref('alerts').limitToLast(1).on('child_added', (snapshot) => {
+
+        // 최초 1회는 기존 데이터라서 무시
+        if (!alertInitialized) {
+            alertInitialized = true;
+            return;
+        }
+
+        const data = snapshot.val();
+
+        // 내가 보낸 건 무시
+        if (data.sender === myName) return;
+
+        showAlert(
+            data.sender,
+            data.type,
+            true
+        );
     });
 }
 
@@ -126,16 +170,17 @@ function handleEnter(e) {
     }
 }
 
-function showAlert(title, msg) {
+function showAlert(title, msg, vibrate = false) {
     document.getElementById('alertTitle').innerText = title;
     document.getElementById('alertMessage').innerText = msg;
 
     document.getElementById('customAlert').classList.add('show');
 
-    if (navigator.vibrate) {
+    if (vibrate && navigator.vibrate) {
         navigator.vibrate([300, 100, 300]);
     }
 }
+
 function sendAlert(type) {
     if (!myName) return;
 

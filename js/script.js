@@ -85,8 +85,25 @@ function loadChatData() {
 // 8. 기능 함수들
 function sendCall(target) {
     if (!myName) return;
-    db.ref('calls').push({ from: myName, to: target, time: Date.now() });
-    alert(target + " 호출 완료!");
+
+    db.ref('calls').push({
+        from: myName,
+        to: target,
+        time: Date.now()
+    });
+
+    showToast(target + " 호출 완료!");
+}
+
+function showToast(msg) {
+    const toast = document.getElementById('toast');
+
+    toast.innerText = msg;
+    toast.classList.add('show');
+
+    setTimeout(() => {
+        toast.classList.remove('show');
+    }, 2000);
 }
 
 function sendMessage(text) {

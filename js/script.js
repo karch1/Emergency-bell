@@ -40,6 +40,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
                 loadChatData();
                 listenAlerts();
+                listenCalls();
                 
             } else {
                 showAlert(
@@ -72,7 +73,6 @@ function login() {
 });
 }
 
-// 7. 데이터 로딩
 function loadChatData() {
     db.ref('chat').limitToLast(100).on('value', (snapshot) => {
         const chatBox = document.getElementById('chat-box');
@@ -108,21 +108,20 @@ function loadChatData() {
     });
 }
 
+// 초기화 변수 두 개 선언
 let alertInitialized = false;
+let callInitialized = false;
 
+// 삭제되었던 퀵버튼 수신 함수 복구
 function listenAlerts() {
     db.ref('alerts').limitToLast(1).on('child_added', (snapshot) => {
-
-        // 최초 1회는 기존 데이터라서 무시
         if (!alertInitialized) {
             alertInitialized = true;
             return;
         }
 
         const data = snapshot.val();
-        console.log(data);
 
-        // 내가 보낸 건 무시
         if (data.sender === myName) return;
 
         showAlert(
@@ -130,6 +129,28 @@ function listenAlerts() {
             data.type,
             true
         );
+    });
+}
+
+// 새로 추가한 개인 호출 수신 함수
+function listenCalls() {
+    db.ref('calls').limitToLast(1).on('child_added', (snapshot) => {
+        if (!callInitialized) {
+            callInitialized = true;
+            return;
+        }
+
+        const data = snapshot.val();
+
+        if (data.from === myName) return;
+
+        if (data.to === myName) {
+            showAlert(
+                "개인 호출",
+                `${data.from}님이 호출했습니다!`,
+                true
+            );
+        }
     });
 }
 

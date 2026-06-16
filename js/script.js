@@ -52,7 +52,14 @@ window.addEventListener('DOMContentLoaded', () => {
 // 6. 로그인 함수 (Redirect 사용 시 결과는 onAuthStateChanged가 처리함)
 function login() {
     const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithRedirect(provider);
+
+    auth.signInWithPopup(provider)
+        .then((result) => {
+            console.log("로그인 성공:", result.user.email);
+        })
+        .catch((error) => {
+            alert("로그인 실패: " + error.message);
+        });
 }
 
 // 7. 데이터 로딩

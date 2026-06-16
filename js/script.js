@@ -125,3 +125,18 @@ function handleEnter(e) {
         }
     }
 }
+
+function showAlert(title, msg) {
+    document.getElementById('alertTitle').innerText = title;
+    document.getElementById('alertMessage').innerText = msg;
+
+    document.getElementById('customAlert').classList.add('show');
+
+    if (navigator.vibrate) {
+        navigator.vibrate([300, 100, 300]);
+    }
+}
+
+function closeAlert() {
+    document.getElementById('customAlert').classList.remove('show');
+}

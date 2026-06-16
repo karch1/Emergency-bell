@@ -16,6 +16,7 @@ const userMapping = {
 };
 
 let db, auth, myName;
+let lastAlertTime = 0;
 
 // 초기화
 firebase.initializeApp(firebaseConfig);
@@ -114,6 +115,7 @@ function listenAlerts() {
         }
 
         const data = snapshot.val();
+        console.log(data);
 
         // 내가 보낸 건 무시
         if (data.sender === myName) return;
@@ -182,12 +184,22 @@ function showAlert(title, msg, vibrate = false) {
 }
 
 function sendAlert(type) {
+
     if (!myName) return;
+
+    const now = Date.now();
+
+    if(now - lastAlertTime < 3000){
+        showToast("3초 후 다시 시도하세요");
+        return;
+    }
+
+    lastAlertTime = now;
 
     db.ref('alerts').push({
         sender: myName,
         type: type,
-        time: Date.now()
+        time: now
     });
 
     showToast(type + " 전송 완료!");

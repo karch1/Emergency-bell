@@ -19,6 +19,7 @@ body {
     display: flex;
     flex-direction: column;
     height: 100%;
+    min-height:0;
     gap: 15px;
 }
 
@@ -67,15 +68,17 @@ body {
 #chat-container {
     flex-grow: 1;
     display: flex;
+    min-height:0;
     flex-direction: column;
     background: white;
     border-radius: 15px;
-    overflow: hidden;
+    overflow: auto;
     border: 1px solid #ddd;
 }
 
 #chat-box {
-    flex-grow: 1;
+    flex:1;
+    min-height:0;
     padding: 15px;
     overflow-y: auto;
     font-size: 14px;
@@ -211,4 +214,7 @@ body {
     border:2px solid #ffd43b;
     color:#000;
     font-weight:700;
+}
+#app-screen{
+    height:100vh;
 }

@@ -93,3 +93,59 @@ body {
     border-radius: 20px;
     outline: none;
 }
+.alert-modal{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.55);
+    display:none;
+    justify-content:center;
+    align-items:center;
+    z-index:9999;
+}
+
+/* 알럿디자인 */
+.alert-modal.show{
+    display:flex;
+}
+
+.alert-box{
+    width:85%;
+    max-width:350px;
+    background:#fff;
+    border-radius:24px;
+    padding:25px;
+    text-align:center;
+    animation:pop .25s ease;
+}
+
+.alert-box button{
+    margin-top:20px;
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:14px;
+    background:#2563eb;
+    color:#fff;
+    font-weight:700;
+}
+
+#alertTitle{
+    font-size:22px;
+    font-weight:800;
+    margin-bottom:10px;
+}
+
+#alertMessage{
+    font-size:18px;
+}
+
+@keyframes pop{
+    from{
+        transform:scale(.8);
+        opacity:0;
+    }
+    to{
+        transform:scale(1);
+        opacity:1;
+    }
+}

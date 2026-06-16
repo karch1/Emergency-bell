@@ -136,6 +136,17 @@ function showAlert(title, msg) {
         navigator.vibrate([300, 100, 300]);
     }
 }
+function sendAlert(type) {
+    if (!myName) return;
+
+    db.ref('alerts').push({
+        sender: myName,
+        type: type,
+        time: Date.now()
+    });
+
+    showToast(type + " 전송 완료!");
+}
 
 function closeAlert() {
     document.getElementById('customAlert').classList.remove('show');

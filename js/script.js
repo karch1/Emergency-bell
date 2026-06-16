@@ -99,7 +99,12 @@ function loadChatData() {
 
             chatBox.appendChild(div);
             });
-        chatBox.scrollTop = chatBox.scrollHeight;
+        
+            requestAnimationFrame(() => {
+            setTimeout(() => {
+            chatBox.scrollTop = chatBox.scrollHeight;
+            }, 0);
+        });
     });
 }
 
@@ -189,9 +194,12 @@ function sendAlert(type) {
 
     const now = Date.now();
 
-    if(now - lastAlertTime < 3000){
-        showToast("3초 후 다시 시도하세요");
-        return;
+    // 특정 버튼만 연타 제한
+    if (!['쌈배ㄱ?', '모두'].includes(type)) {
+        if (now - lastAlertTime < 3000) {
+            showToast("3초 후 다시 시도하세요");
+            return;
+        }
     }
 
     lastAlertTime = now;

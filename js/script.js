@@ -1,4 +1,6 @@
-// 1. Firebase 설정값
+// ========================================================
+// 1. Firebase 설정값 및 글로벌 변수
+// ========================================================
 const firebaseConfig = {
     apiKey: "AIzaSyBOBiHXX_LlUqzoJ1mARemO2mn_PEsG2D0",
     authDomain: "emergency-bell-76a97.firebaseapp.com",
@@ -17,19 +19,44 @@ const userMapping = {
 
 let db, auth, myName;
 let lastAlertTime = 0;
+let alertInitialized = false;
+let callInitialized = false;
 
-// 초기화
+// Firebase 초기화
 firebase.initializeApp(firebaseConfig);
 db = firebase.database();
 auth = firebase.auth();
 
-// 5. 로그인 상태 체크 및 화면 제어
+// ========================================================
+// 2. [신규] 백그라운드 푸시 알림 권한 요청 함수
+// ========================================================
+function requestNotificationPermission() {
+    if (!("Notification" in window)) {
+        console.log("이 브라우저는 시스템 알림을 지원하지 않습니다.");
+        return;
+    }
+    // 알림 권한이 허용되지도 거부되지도 않은 상태라면 권한 요청 팝업 띄우기
+    if (Notification.permission !== "granted" && Notification.permission !== "denied") {
+        Notification.requestPermission().then(permission => {
+            if (permission === "granted") {
+                console.log("시스템 알림 권한 획득 성공!");
+            }
+        });
+    }
+}
+
+// ========================================================
+// 3. 앱 구동 및 로그인 인증 체크 (DOMContentLoaded)
+// ========================================================
 window.addEventListener('DOMContentLoaded', () => {
-    // 1. 화면 초기화: 로그인 상태 확인 전까지는 아무것도 보여주지 않음
+    // 🌟 앱 켜지자마자 PC/모바일 브라우저에 알림 권한 요청
+    requestNotificationPermission();
+
+    // 화면 초기화: 로그인 상태 확인 전까지는 아무것도 보여주지 않음
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app-screen').style.display = 'none';
 
-    // 2. 인증 상태 변화 감지
+    // 인증 상태 변화 감지
     auth.onAuthStateChanged((user) => {
         if (user) {
             // 로그인 상태이면 매핑 확인
@@ -57,7 +84,9 @@ window.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// 6. 로그인 함수 (Redirect 사용 시 결과는 onAuthStateChanged가 처리함)
+// ========================================================
+// 4. 구글 로그인 시스템
+// ========================================================
 function login() {
     const provider = new firebase.auth.GoogleAuthProvider();
 
@@ -66,13 +95,16 @@ function login() {
             console.log("로그인 성공:", result.user.email);
         })
         .catch((error) => {
-        showAlert(
-            "로그인 실패",
-            error.message
-        );
-    });
+            showAlert(
+                "로그인 실패",
+                error.message
+            );
+        });
 }
 
+// ========================================================
+// 5. 실시간 채팅 데이터 로드 및 읽음 카운트 연동
+// ========================================================
 function loadChatData() {
     db.ref('chat').limitToLast(100).on('value', (snapshot) => {
         const chatBox = document.getElementById('chat-box');
@@ -85,19 +117,19 @@ function loadChatData() {
             const data = childSnapshot.val();
             const messageKey = childSnapshot.key;
             
-            // 🌟 읽은 사람 목록 객체 가져오기 (데이터가 없으면 빈 객체로 방어)
+            // 읽은 사람 목록 객체 가져오기 (데이터가 없으면 빈 객체로 방어)
             const readUsers = data.readUsers || {};
 
-            // 🌟 내가 이 메시지의 읽은 사람 목록에 없다면, 실시간으로 DB에 '나 읽었음' 등록!
+            // 내가 이 메시지의 읽은 사람 목록에 없다면, 실시간으로 DB에 '나 읽었음' 등록!
             if (myName && !readUsers[myName]) {
                 db.ref(`chat/${messageKey}/readUsers/${myName}`).set(true);
             }
 
-            // 🌟 안읽은 사람 수 계산 (전체 인원 3명 - 읽은 사람 수)
+            // 안읽은 사람 수 계산 (전체 인원 3명 - 읽은 사람 수)
             const readCount = Object.keys(readUsers).length;
             const unreadCount = 3 - readCount;
 
-            // 🌟 카톡처럼 숫자가 0보다 클 때만 화면에 띄우기
+            // 카톡처럼 숫자가 0보다 클 때만 화면에 띄우기
             const unreadMarkup = unreadCount > 0 ? `<span class="unread-count">${unreadCount}</span>` : '';
             
             // 메시지 등록 시간(Timestamp) 변환
@@ -163,11 +195,9 @@ function loadChatData() {
     });
 }
 
-// 초기화 변수 두 개 선언
-let alertInitialized = false;
-let callInitialized = false;
-
-// 삭제되었던 퀵버튼 수신 함수 복구
+// ========================================================
+// 6. 실시간 신호 대기 (리스너 영역)
+// ========================================================
 function listenAlerts() {
     db.ref('alerts').limitToLast(1).on('child_added', (snapshot) => {
         if (!alertInitialized) {
@@ -176,7 +206,6 @@ function listenAlerts() {
         }
 
         const data = snapshot.val();
-
         if (data.sender === myName) return;
 
         showAlert(
@@ -187,7 +216,6 @@ function listenAlerts() {
     });
 }
 
-// 새로 추가한 개인 호출 수신 함수
 function listenCalls() {
     db.ref('calls').limitToLast(1).on('child_added', (snapshot) => {
         if (!callInitialized) {
@@ -196,7 +224,6 @@ function listenCalls() {
         }
 
         const data = snapshot.val();
-
         if (data.from === myName) return;
 
         if (data.to === myName) {
@@ -209,7 +236,9 @@ function listenCalls() {
     });
 }
 
-// 8. 기능 함수들
+// ========================================================
+// 7. 데이터 전송 및 컴포넌트 제어 함수들
+// ========================================================
 function sendCall(target) {
     if (!myName) return;
 
@@ -224,7 +253,6 @@ function sendCall(target) {
 
 function showToast(msg) {
     const toast = document.getElementById('toast');
-
     toast.innerText = msg;
     toast.classList.add('show');
 
@@ -233,7 +261,6 @@ function showToast(msg) {
     }, 2000);
 }
 
-// 🌟 [수정 완료] 메시지를 처음 보낼 때 '나'는 읽었으므로 내 이름을 포함해서 전송하는 로직 반영
 function sendMessage(text) {
     if (!myName) return;
     let mention = null;
@@ -263,11 +290,23 @@ function handleEnter(e) {
     }
 }
 
+// 🌟 [개조 완료] 모달 알림창과 동시에 시스템 백그라운드 푸시 알림 발송 로직 추가
 function showAlert(title, msg, vibrate = false) {
     document.getElementById('alertTitle').innerText = title;
     document.getElementById('alertMessage').innerText = msg;
-
     document.getElementById('customAlert').classList.add('show');
+
+    // 브라우저가 백그라운드(창 내려감, 딴짓 중)일 때 시스템 OS 팝업 알림 강제 발송
+    if (Notification.permission === "granted") {
+        navigator.serviceWorker.ready.then(registration => {
+            registration.showNotification(title, {
+                body: msg,
+                vibrate: [200, 100, 200],
+                tag: 'emergency-call', // 알림 중복 쌓임 방지 키값
+                renotify: true
+            });
+        });
+    }
 
     if (vibrate && navigator.vibrate) {
         navigator.vibrate([300, 100, 300]);
@@ -275,9 +314,7 @@ function showAlert(title, msg, vibrate = false) {
 }
 
 function sendAlert(type) {
-
     if (!myName) return;
-
     const now = Date.now();
 
     // 특정 버튼만 연타 제한
@@ -303,15 +340,15 @@ function closeAlert() {
     document.getElementById('customAlert').classList.remove('show');
 }
 
-// 🌟 테마 전환 자바스크립트 함수 (여름모드 <-> 다크모드)
+// ========================================================
+// 8. 테마 모드 제어 스위치 함수 (여름모드 <-> 다크모드)
+// ========================================================
 function toggleTheme() {
     const body = document.body;
     const btn = document.getElementById('theme-toggle-btn');
     
-    // 클래스 토글 (css랑 연동)
     body.classList.toggle('dark-mode');
     
-    // 버튼 텍스트 변경 및 새로고침해도 유지되게 로컬스토리지에 저장
     if (body.classList.contains('dark-mode')) {
         if (btn) btn.innerText = "🌊 여름모드 전환";
         localStorage.setItem('theme', 'dark');
@@ -321,7 +358,7 @@ function toggleTheme() {
     }
 }
 
-// 페이지가 처음 켜질 때 이전에 기억해 둔 테마 불러오기
+// 세션 시작 시 세팅해둔 테마값 영구 로드
 window.addEventListener('load', () => {
     const savedTheme = localStorage.getItem('theme');
     const btn = document.getElementById('theme-toggle-btn');

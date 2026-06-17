@@ -35,11 +35,14 @@
             <button class="btn-sub" onclick="sendAlert('모두')">모두</button>
         </div>
 
-        <div id="chat-container">
-            <div id="chat-box"></div>
-            <div class="input-area">
-                <input type="text" id="chatInput" placeholder="메시지를 입력하세요..." onkeypress="handleEnter(event)">
-            </div>
+        <div id="chat-box" class="chat-box"></div>
+
+        <div class="chat-input-container">
+            <input type="file" id="imageInput" accept="image/*" style="display: none;" onchange="uploadImage(this)">
+            
+            <button type="button" class="image-attach-btn" onclick="document.getElementById('imageInput').click()">🖼️</button>
+            
+            <input type="text" id="chatInput" onkeydown="handleEnter(event)" placeholder="메시지를 입력하세요...">
         </div>
     </div>
 </div>

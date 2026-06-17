@@ -302,3 +302,31 @@ function sendAlert(type) {
 function closeAlert() {
     document.getElementById('customAlert').classList.remove('show');
 }
+
+// 🌟 테마 전환 자바스크립트 함수 (여름모드 <-> 다크모드)
+function toggleTheme() {
+    const body = document.body;
+    const btn = document.getElementById('theme-toggle-btn');
+    
+    // 클래스 토글 (css랑 연동)
+    body.classList.toggle('dark-mode');
+    
+    // 버튼 텍스트 변경 및 새로고침해도 유지되게 로컬스토리지에 저장
+    if (body.classList.contains('dark-mode')) {
+        if (btn) btn.innerText = "🌊 여름모드 전환";
+        localStorage.setItem('theme', 'dark');
+    } else {
+        if (btn) btn.innerText = "🌙 다크모드 전환";
+        localStorage.setItem('theme', 'summer');
+    }
+}
+
+// 페이지가 처음 켜질 때 이전에 기억해 둔 테마 불러오기
+window.addEventListener('load', () => {
+    const savedTheme = localStorage.getItem('theme');
+    const btn = document.getElementById('theme-toggle-btn');
+    if (savedTheme === 'dark') {
+        document.body.classList.add('dark-mode');
+        if (btn) btn.innerText = "🌊 여름모드 전환";
+    }
+});

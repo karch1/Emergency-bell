@@ -103,7 +103,7 @@ function login() {
 }
 
 // ========================================================
-// 5. 실시간 채팅 데이터 로드 및 읽음 카운트 연동
+// 5. 실시간 채팅 데이터 로드 및 읽음 카운트 연동 (이미지 대응 완료)
 // ========================================================
 function loadChatData() {
     db.ref('chat').limitToLast(100).on('value', (snapshot) => {
@@ -172,11 +172,20 @@ function loadChatData() {
                 div.classList.add('mention');
             }
 
+            // 🌟 [핵심수정] 데이터에 이미지 주소(imgUrl)가 있으면 이미지 태그를, 없으면 일반 텍스트를 출력!
+            let bubbleContent = '';
+            if (data.imgUrl) {
+                // 이미지를 클릭하면 새 창에서 원본을 크게 볼 수 있게 <a> 링크 처리
+                bubbleContent = `<a href="${data.imgUrl}" target="_blank"><img src="${data.imgUrl}" class="chat-image-preview" alt="전송 이미지"></a>`;
+            } else {
+                bubbleContent = data.msg;
+            }
+
             // 숫자(unreadMarkup)와 시간이 세로로 이쁘게 배치되도록 HTML 구조 변경
             div.innerHTML = `
                 <div class="sender">${data.sender}</div>
                 <div class="message-content-wrapper">
-                    <div class="bubble">${data.msg}</div>
+                    <div class="bubble">${bubbleContent}</div>
                     <div class="time-and-count">
                         ${unreadMarkup}
                         <span class="chat-time">${currentTimeString}</span>
@@ -365,3 +374,71 @@ window.addEventListener('load', () => {
         if (btn) btn.innerText = "🌊 여름모드 전환";
     }
 });
+
+// ========================================================
+// 9. [신규] 이미지 압축 및 Firebase Storage 업로드
+// ========================================================
+function uploadImage(input) {
+    if (!myName) return;
+    const file = input.files[0];
+    if (!file) return;
+
+    showToast("이미지 뼈 때리게 다이어트 중...");
+
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = function (event) {
+        const img = new Image();
+        img.src = event.target.result;
+        img.onload = function () {
+            // 캔버스로 가로 800px 맞춤 해상도 다이어트
+            const canvas = document.createElement('canvas');
+            const max_size = 800; 
+            let width = img.width;
+            let height = img.height;
+
+            if (width > height) {
+                if (width > max_size) {
+                    height *= max_size / width;
+                    width = max_size;
+                }
+            } else {
+                if (height > max_size) {
+                    width *= max_size / height;
+                    height = max_size;
+                }
+            }
+            canvas.width = width;
+            canvas.height = height;
+
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+
+            // 화질 70%로 낮춰서 용량 90% 리사이징 컷
+            canvas.toBlob(function (blob) {
+                const filename = Date.now() + "_compressed.jpg";
+                const storageRef = firebase.storage().ref('chat_images/' + filename);
+
+                storageRef.put(blob).then((snapshot) => {
+                    return snapshot.ref.getDownloadURL();
+                }).then((downloadURL) => {
+                    const initialReadUsers = {};
+                    initialReadUsers[myName] = true;
+
+                    // 메시지 DB에 이미지 다운로드 링크 저장
+                    db.ref('chat').push({ 
+                        sender: myName, 
+                        msg: "", 
+                        imgUrl: downloadURL, 
+                        time: Date.now(),
+                        readUsers: initialReadUsers 
+                    });
+                    input.value = ""; // 초기화
+                }).catch((error) => {
+                    console.error(error);
+                    showToast("이미지 전송 실패 ㅠㅠ");
+                });
+            }, 'image/jpeg', 0.7);
+        };
+    };
+}

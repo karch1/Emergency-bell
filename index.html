@@ -17,60 +17,57 @@
     </div>
 
     <div id="app-screen" style="display:none;">
-    <div class="container">
-        <div style="text-align: right; margin-bottom: 2px;">
-            <button id="theme-toggle-btn" onclick="toggleTheme()" style="padding: 6px 12px; border: none; border-radius: 20px; font-size: 11px; font-weight: bold; background: rgba(255,255,255,0.4); color: #fff; cursor: pointer;">
-                🌙 다크모드 전환
-            </button>
-        </div>
+        <div class="container">
+            <div style="text-align: right; margin-bottom: 2px;">
+                <button id="theme-toggle-btn" onclick="toggleTheme()" style="padding: 6px 12px; border: none; border-radius: 20px; font-size: 11px; font-weight: bold; background: rgba(255,255,255,0.4); color: #fff; cursor: pointer;">
+                    🌙 다크모드 전환
+                </button>
+            </div>
 
-        <div class="button-group">
-            <button class="btn" onclick="sendCall('우식')">우식</button>
-            <button class="btn" onclick="sendCall('승환')">승환</button>
-            <button class="btn" onclick="sendCall('대성')">대성</button>
-        </div>
+            <div class="button-group">
+                <button class="btn" onclick="sendCall('우식')">우식</button>
+                <button class="btn" onclick="sendCall('승환')">승환</button>
+                <button class="btn" onclick="sendCall('대성')">대성</button>
+            </div>
 
-        <div class="quick-group">
-            <button class="btn-sub" onclick="sendAlert('쌈배ㄱ?')">쌈배ㄱ?</button>
-            <button class="btn-sub" onclick="sendAlert('모두')">모두</button>
-        </div>
+            <div class="quick-group">
+                <button class="btn-sub" onclick="sendAlert('쌈배ㄱ?')">쌈배ㄱ?</button>
+                <button class="btn-sub" onclick="sendAlert('모두')">모두</button>
+            </div>
 
-        <div id="chat-box" class="chat-box"></div>
+            <div id="chat-box" class="chat-box"></div>
 
-        <div class="chat-input-container">
-            <input type="file" id="imageInput" accept="image/*" style="display: none;" onchange="uploadImage(this)">
-            
-            <button type="button" class="image-attach-btn" onclick="document.getElementById('imageInput').click()">🖼️</button>
-            
-            <input type="text" id="chatInput" onkeydown="handleEnter(event)" placeholder="메시지를 입력하세요...">
+            <!-- 🛠️ 이미지 첨부 버튼 싹 빼고 깔끔하게 텍스트 입력창만 남김! -->
+            <div class="chat-input-container">
+                <input type="text" id="chatInput" onkeydown="handleEnter(event)" placeholder="메시지를 입력하세요...">
+            </div>
         </div>
     </div>
-</div>
 
     <div id="customAlert" class="alert-modal">
-    <div class="alert-box">
-        <div id="alertTitle"></div>
-        <div id="alertMessage"></div>
-        <button onclick="closeAlert()">확인</button>
-    </div>
+        <div class="alert-box">
+            <div id="alertTitle"></div>
+            <div id="alertMessage"></div>
+            <button onclick="closeAlert()">확인</button>
+        </div>
     </div>
     <div id="toast"></div>
 
+    <!-- 파이어베이스 기본 라이브러리 삼형제만 깔끔하게 유지 (Storage 삭제) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
 
     <script src="js/script.js"></script>
     <script>
-          if ('serviceWorker' in navigator) {
-              window.addEventListener('load', () => {
-              navigator.serviceWorker.register('./service-worker.js')
-               .then(reg => console.log('서비스 워커 등록 성공'))
-               .catch(err => console.log('서비스 워커 등록 실패', err));
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./service-worker.js')
+                    .then(reg => console.log('서비스 워커 등록 성공'))
+                    .catch(err => console.log('서비스 워커 등록 실패', err));
             });
-          }
-</script>
+        }
+    </script>
 </body>
 
 </html>

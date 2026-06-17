@@ -1,4 +1,6 @@
-/* 기본 초기화 */
+/* ========================================================
+   기본 초기화 및 기본 모드 (기본은 시원한 여름 에메랄드 바다)
+========================================================= */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -7,11 +9,12 @@
 
 body {
     font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
-    background: #abc1d1; /* 🌟 카톡 기본 배경색 (하늘색) */
+    background: #7ec4cf; /* 🌟 여름 기본 테마: 시원한 청량 에메랄드 바다색 */
     height: 100vh;
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    transition: background 0.2s ease; /* 전환할 때 부드럽게 배경 바꿈 */
 }
 
 .container {
@@ -39,14 +42,14 @@ body {
     font-weight: 600;
     font-size: 15px;
     background: #ffffff;
-    color: #191919;
+    color: #0f4c5c; /* 진한 바다 딥블루 톤 */
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
     cursor: pointer;
-    transition: background 0.1s, transform 0.1s;
+    transition: background 0.1s, transform 0.1s, color 0.2s, border-color 0.2s;
 }
 
 .btn:active {
-    background: #f2f2f2;
+    background: #e0f2f1; /* 눌렀을 때 시원한 민트빛 반응 */
     transform: scale(0.97);
 }
 
@@ -65,15 +68,15 @@ body {
     border-radius: 12px;
     font-size: 14px;
     font-weight: bold;
-    background: #fee500; /* 🌟 카톡 시그니처 노란색 */
-    color: #191919;      /* 글자색은 시크한 검정 */
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    background: #ffab40; /* 🌟 여름 찰떡: 톡 터지는 오렌지 에이드 컬러 */
+    color: #ffffff;      
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     cursor: pointer;
-    transition: background 0.1s;
+    transition: background 0.1s, color 0.2s;
 }
 
 .btn-sub:active {
-    background: #fada0a; /* 눌렀을 때 살짝 어두워지는 노란색 */
+    background: #ff9100;
 }
 
 /* ========================================================
@@ -84,9 +87,10 @@ body {
     display: flex;
     min-height: 0;
     flex-direction: column;
-    background: #abc1d1; /* 🌟 채팅 영역도 카톡 배경색 통일 */
+    background: #7ec4cf; /* 채팅창 영역도 에메랄드 바다색 통일 */
     border-radius: 16px;
     overflow: hidden;
+    transition: background 0.2s ease;
 }
 
 #chat-box {
@@ -105,25 +109,27 @@ body {
     background: #ffffff;
     display: flex;
     align-items: center;
+    transition: background 0.2s, border-color 0.2s;
 }
 
 #chatInput {
     width: 100%;
     padding: 10px 16px;
-    border: 1px solid #e2e2e2;
+    border: 1px solid #b2dfdb;
     border-radius: 18px;
-    background: #f6f6f6;
+    background: #f4fbfb;
     outline: none;
     font-size: 14px;
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
 }
 
 #chatInput:focus {
     background: #ffffff;
-    border-color: #b2b2b2;
+    border-color: #00838f;
 }
 
 /* ========================================================
-   카톡형 메시지 레이아웃 및 말풍선
+   메시지 레이아웃 및 말풍선
 ========================================================= */
 .chat-message {
     display: flex;
@@ -132,32 +138,30 @@ body {
     max-width: 100%;
 }
 
-/* 내가 보낸 메시지 우측 정렬 */
 .chat-message.mine {
     align-items: flex-end;
 }
 
 .sender {
     font-size: 11px;
-    color: #4e5968;
+    color: #0f4c5c; /* 가시성을 위해 어두운 바다색 글씨 */
+    font-weight: 600;
     margin-bottom: 3px;
     padding: 0 4px;
+    transition: color 0.2s;
 }
 
-/* 말풍선과 숫자를 감싸는 래퍼 */
 .message-content-wrapper {
     display: flex;
     align-items: flex-end;
     gap: 6px;
-    max-width: 80%; /* 너무 넓어지지 않게 조절 */
+    max-width: 80%;
 }
 
-/* 상대방 메시지 순서: [말풍선] [시간/숫자] */
 .chat-message .message-content-wrapper {
     flex-direction: row;
 }
 
-/* 내가 보낸 메시지 순서: [시간/숫자] [말풍선] */
 .chat-message.mine .message-content-wrapper {
     flex-direction: row-reverse;
 }
@@ -166,25 +170,27 @@ body {
 .bubble {
     padding: 10px 12px;
     border-radius: 14px;
-    background: #ffffff; /* 상대방 말풍선: 흰색 */
+    background: #ffffff; /* 상대방 말풍선: 하얀 파도 같은 흰색 */
     color: #191919;
     font-size: 14px;
     line-height: 1.4;
     word-break: break-word;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    transition: background 0.2s, color 0.2s;
 }
 
-/* 🌟 내가 보낸 말풍선: 카톡 노란색 */
+/* 내가 보낸 말풍선: 해변 썬셋 느낌의 화사한 오렌지 옐로우 */
 .mine .bubble {
-    background: #fee500;
-    color: #191919;
+    background: #ffd54f;
+    color: #0f4c5c;
+    font-weight: 500;
 }
 
 /* 멘션방식 (나를 불렀을 때 강조) */
 .mention .bubble {
-    background: #ffebf0;
-    border: 1.5px solid #ff4d79;
-    color: #ff4d79;
+    background: #e0f7fa;
+    border: 2px solid #00acc1;
+    color: #006064;
     font-weight: 700;
 }
 
@@ -195,32 +201,34 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    gap: 1px;
+    gap: 2px;
     min-width: max-content;
 }
 
-/* 상대방 글은 왼쪽, 내 글은 오른쪽 정렬 */
 .chat-message .time-and-count { align-items: flex-start; }
 .chat-message.mine .time-and-count { align-items: flex-end; }
 
-/* 안읽은 숫자 디자인 (가시성 대폭 보강 버전) */
+/* 🌟 안읽은 숫자 (여름 바다 가시성 극대화 버전) */
 .unread-count {
-    color: #fee500; /* 🌟 카톡 오리지널 쨍한 노란색으로 변경 */
-    font-size: 12px; /* 크기 살짝 키움 */
-    font-weight: bold;
+    color: #ffffff; /* 흰색 글자 */
+    font-size: 12px;
+    font-weight: 900;
     line-height: 1;
-    /* 🌟 글자 외곽선 효과를 주어 배경색에 묻히지 않고 무조건 보이게 처리 */
+    /* 바다색 외곽선을 줘서 엄청 또렷하게 보이게 처리 */
     text-shadow: 
-        -1px -1px 0 #000,  
-         1px -1px 0 #000,
-        -1px  1px 0 #000,
-         1px  1px 0 #000;
+        -1px -1px 0 #0f4c5c,  
+         1px -1px 0 #0f4c5c,
+        -1px  1px 0 #0f4c5c,
+         1px  1px 0 #0f4c5c,
+         0px  2px 4px rgba(0,0,0,0.2);
 }
 
 .chat-time {
     font-size: 9px;
-    color: #65717f; /* 배경 흐린 하늘색에 잘 보이는 회색 */
+    color: #ffffff; /* 바다 배경 위에서 잘 보이게 흰색 지정 */
+    opacity: 0.85;
     white-space: nowrap;
+    transition: color 0.2s, opacity 0.2s;
 }
 
 /* ========================================================
@@ -233,25 +241,25 @@ body {
     margin: 16px 0;
     color: #ffffff;
     font-size: 11px;
-    opacity: 0.8;
+    font-weight: 600;
 }
 
 .date-divider::before,
 .date-divider::after {
     content: "";
     flex: 1;
-    background: rgba(255, 255, 255, 0.3); /* 하늘색 배경에 어울리는 흰색 반투명 선 */
+    background: rgba(255, 255, 255, 0.4); /* 투명한 흰색 선 */
     height: 1px;
     margin: 0 12px;
 }
 
 /* ========================================================
-   기타 알럿 / 토스트 모달 (기존 유지 및 카톡톤 핏)
+   기타 알럿 / 토스트 모달
 ========================================================= */
 .alert-modal {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,.4);
+    background: rgba(15, 76, 92, 0.4);
     display: none;
     justify-content: center;
     align-items: center;
@@ -273,11 +281,11 @@ body {
     padding: 12px;
     border: none;
     border-radius: 8px;
-    background: #fee500;
-    color: #191919;
+    background: #ffab40;
+    color: #fff;
     font-weight: 700;
 }
-#alertTitle { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+#alertTitle { font-size: 18px; font-weight: 700; margin-bottom: 6px; color: #0f4c5c; }
 #alertMessage { font-size: 15px; color: #4e5968; }
 
 #toast {
@@ -285,7 +293,7 @@ body {
     bottom: 80px;
     left: 50%;
     transform: translateX(-50%) translateY(100px);
-    background: rgba(50, 50, 50, 0.9);
+    background: rgba(15, 76, 92, 0.95);
     color: white;
     padding: 10px 16px;
     border-radius: 20px;
@@ -297,3 +305,94 @@ body {
 #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 @keyframes pop { from { transform: scale(.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 #app-screen { height: 100vh; }
+
+
+/* ========================================================
+   🌙 🌙 [신규 추가] 다크 모드 스타일 스위칭 분리 🌙 🌙
+   (body에 .dark-mode 클래스가 붙으면 아래 스타일이 우선 작동함)
+========================================================= */
+body.dark-mode {
+    background: #1e1e1e; /* 깊은 밤 다크 그레이 배경 */
+}
+
+body.dark-mode #chat-container {
+    background: #1e1e1e;
+}
+
+/* 상단 버튼 다크 브릭 스타일 */
+body.dark-mode .btn {
+    background: #2d2d2d;
+    color: #b0b3b8;
+    border-color: #3e3e3e;
+}
+body.dark-mode .btn:active {
+    background: #3e3e3e;
+}
+
+/* 하단 퀵버튼 차분한 그레이 */
+body.dark-mode .btn-sub {
+    background: #3a3b3c;
+    color: #e4e6eb;
+}
+
+/* 입력 공간 다크 셋업 */
+body.dark-mode .input-area {
+    background: #2d2d2d;
+    border-top: 1px solid #3e3e3e;
+}
+body.dark-mode #chatInput {
+    background: #3a3b3c;
+    border-color: #4e4f50;
+    color: #ffffff;
+}
+body.dark-mode #chatInput:focus {
+    border-color: #2563eb;
+}
+
+/* 챗방 이름 및 텍스트 톤 다운 */
+body.dark-mode .sender {
+    color: #a8b3cf;
+}
+body.dark-mode .bubble {
+    background: #3a3b3c;
+    color: #e4e6eb;
+}
+
+/* 🌟 다크 모드일 때 내 말풍선: 차분하지만 세련된 다크블루 */
+body.dark-mode .mine .bubble {
+    background: #2563eb;
+    color: #ffffff;
+}
+
+/* 🌟 다크 모드일 때 안읽은 숫자 (가시성 세팅) */
+body.dark-mode .unread-count {
+    color: #fee500; /* 다크모드에선 오리지널 카톡 쨍노란색으로 체인지 */
+    font-size: 12px;
+    text-shadow: 
+        -1px -1px 0 #1e1e1e,  
+         1px -1px 0 #1e1e1e,
+        -1px  1px 0 #1e1e1e,
+         1px  1px 0 #1e1e1e;
+}
+
+body.dark-mode .chat-time {
+    color: #8a8d91;
+    opacity: 1;
+}
+
+/* 다크모드 날짜 선 변경 */
+body.dark-mode .date-divider {
+    color: #8a8d91;
+}
+body.dark-mode .date-divider::before,
+body.dark-mode .date-divider::after {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* 다크모드 알럿 모달 */
+body.dark-mode .alert-box {
+    background: #2d2d2d;
+}
+body.dark-mode #alertTitle { color: #ffffff; }
+body.dark-mode #alertMessage { color: #b0b3b8; }
+body.dark-mode .alert-box button { background: #2563eb; color: #fff; }

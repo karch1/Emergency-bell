@@ -317,12 +317,10 @@ function sendAlert(type) {
     if (!myName) return;
     const now = Date.now();
 
-    // 특정 버튼만 연타 제한
-    if (!['쌈배ㄱ?', '모두'].includes(type)) {
-        if (now - lastAlertTime < 3000) {
-            showToast("3초 후 다시 시도하세요");
-            return;
-        }
+    // 🌟 쌈배ㄱ, 모두 버튼 포함해서 '모든 버튼' 10초 연타 제한!
+    if (now - lastAlertTime < 10000) {
+        showToast("3초 후 다시 시도하세요");
+        return;
     }
 
     lastAlertTime = now;

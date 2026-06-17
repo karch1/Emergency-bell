@@ -203,12 +203,18 @@ body {
 .chat-message .time-and-count { align-items: flex-start; }
 .chat-message.mine .time-and-count { align-items: flex-end; }
 
-/* 카톡 특유의 노란빛/주황빛 안읽은 숫자 */
+/* 안읽은 숫자 디자인 (가시성 대폭 보강 버전) */
 .unread-count {
-    color: #fca000; 
-    font-size: 10px;
+    color: #fee500; /* 🌟 카톡 오리지널 쨍한 노란색으로 변경 */
+    font-size: 12px; /* 크기 살짝 키움 */
     font-weight: bold;
     line-height: 1;
+    /* 🌟 글자 외곽선 효과를 주어 배경색에 묻히지 않고 무조건 보이게 처리 */
+    text-shadow: 
+        -1px -1px 0 #000,  
+         1px -1px 0 #000,
+        -1px  1px 0 #000,
+         1px  1px 0 #000;
 }
 
 .chat-time {

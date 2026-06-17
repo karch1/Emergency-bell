@@ -19,7 +19,7 @@ body {
     display: flex;
     flex-direction: column;
     height: 100%;
-    min-height:0;
+    min-height: 0;
     gap: 15px;
 }
 
@@ -68,7 +68,7 @@ body {
 #chat-container {
     flex-grow: 1;
     display: flex;
-    min-height:0;
+    min-height: 0;
     flex-direction: column;
     background: white;
     border-radius: 15px;
@@ -77,8 +77,8 @@ body {
 }
 
 #chat-box {
-    flex:1;
-    min-height:0;
+    flex: 1;
+    min-height: 0;
     padding: 15px;
     overflow-y: auto;
     font-size: 14px;
@@ -96,125 +96,172 @@ body {
     border-radius: 20px;
     outline: none;
 }
-.alert-modal{
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,.55);
-    display:none;
-    justify-content:center;
-    align-items:center;
-    z-index:9999;
+
+.alert-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.55);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
 }
 
 /* 알럿디자인 */
-.alert-modal.show{
-    display:flex;
+.alert-modal.show {
+    display: flex;
 }
 
-.alert-box{
-    width:85%;
-    max-width:350px;
-    background:#fff;
-    border-radius:24px;
-    padding:25px;
-    text-align:center;
-    animation:pop .25s ease;
+.alert-box {
+    width: 85%;
+    max-width: 350px;
+    background: #fff;
+    border-radius: 24px;
+    padding: 25px;
+    text-align: center;
+    animation: pop .25s ease;
 }
 
-.alert-box button{
-    margin-top:20px;
-    width:100%;
-    padding:14px;
-    border:none;
-    border-radius:14px;
-    background:#2563eb;
-    color:#fff;
-    font-weight:700;
+.alert-box button {
+    margin-top: 20px;
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 14px;
+    background: #2563eb;
+    color: #fff;
+    font-weight: 700;
 }
 
-#alertTitle{
-    font-size:22px;
-    font-weight:800;
-    margin-bottom:10px;
+#alertTitle {
+    font-size: 22px;
+    font-weight: 800;
+    margin-bottom: 10px;
 }
 
-#alertMessage{
-    font-size:18px;
+#alertMessage {
+    font-size: 18px;
 }
 
-@keyframes pop{
-    from{
-        transform:scale(.8);
-        opacity:0;
+@keyframes pop {
+    from {
+        transform: scale(.8);
+        opacity: 0;
     }
-    to{
-        transform:scale(1);
-        opacity:1;
+    to {
+        transform: scale(1);
+        opacity: 1;
     }
 }
 
-#toast{
-    position:fixed;
-    bottom:30px;
-    left:50%;
-    transform:translateX(-50%) translateY(100px);
-
-    background:#222;
-    color:white;
-
-    padding:14px 20px;
-    border-radius:15px;
-
-    font-size:14px;
-    font-weight:600;
-
-    opacity:0;
-    transition:.3s;
-
-    z-index:9999;
+#toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: #222;
+    color: white;
+    padding: 14px 20px;
+    border-radius: 15px;
+    font-size: 14px;
+    font-weight: 600;
+    opacity: 0;
+    transition: .3s;
+    z-index: 9999;
 }
 
-#toast.show{
-    opacity:1;
-    transform:translateX(-50%) translateY(0);
-}
-.chat-message{
-    display:flex;
-    flex-direction:column;
-    margin-bottom:12px;
+#toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
 }
 
-.chat-message.mine{
-    align-items:flex-end;
+#app-screen {
+    height: 100vh;
 }
 
-.sender{
-    font-size:12px;
-    color:#666;
-    margin-bottom:4px;
-    padding:0 6px;
+/* ========================================================
+   채팅 메시지 레이아웃 (기존 내용 보완 및 정렬 신규 추가)
+========================================================= */
+
+.chat-message {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 12px;
 }
 
-.bubble{
-    max-width:85%;
-    padding:12px 14px;
-    border-radius:18px;
-    background:#ffffff;
-    box-shadow:0 2px 8px rgba(0,0,0,.08);
-    word-break:break-word;
+/* 내가 보낸 메시지 세로 정렬 우측으로 */
+.chat-message.mine {
+    align-items: flex-end;
 }
 
-.mine .bubble{
-    background:#2563eb;
-    color:white;
+.sender {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 4px;
+    padding: 0 6px;
 }
 
-.mention .bubble{
-    background:#fff3bf;
-    border:2px solid #ffd43b;
-    color:#000;
-    font-weight:700;
+/* 말풍선과 시간을 감싸는 바깥 래퍼 */
+.message-content-wrapper {
+    display: flex;
+    align-items: flex-end; /* 말풍선과 시간이 바닥을 기준으로 정렬 */
+    gap: 6px;
+    max-width: 85%; /* 말풍선 최대 너비 제한 */
 }
-#app-screen{
-    height:100vh;
+
+/* 상대방 메시지: [말풍선] [시간] 기본 순서 */
+.chat-message .message-content-wrapper {
+    flex-direction: row;
+}
+
+/* 내가 보낸 메시지: [시간] [말풍선] 순서로 반전 */
+.chat-message.mine .message-content-wrapper {
+    flex-direction: row-reverse;
+}
+
+/* 말풍선 기본 공통 스타일 (래퍼 안으로 들어가서 width 100% 대응) */
+.bubble {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 18px;
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgba(0,0,0,.08);
+    word-break: break-word;
+}
+
+/* 내가 보낸 말풍선 배경색 변경 */
+.mine .bubble {
+    background: #2563eb;
+    color: white;
+}
+
+/* 멘션된 말풍선 배경색 변경 */
+.mention .bubble {
+    background: #fff3bf;
+    border: 2px solid #ffd43b;
+    color: #000;
+    font-weight: 700;
+}
+
+/* ========================================================
+   날짜 구분선 스타일 (신규 추가)
+========================================================= */
+.date-divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 20px 0;
+    color: #999;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+/* 날짜 좌우에 배치되는 깔끔한 가로 선 */
+.date-divider::before,
+.date-divider::after {
+    content: "";
+    flex: 1;
+    background: #e5e7eb;
+    height: 1px;
+    margin: 0 12px;
 }

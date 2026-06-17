@@ -17,24 +17,32 @@
     </div>
 
     <div id="app-screen" style="display:none;">
-        <div class="container">
-            <div class="button-group">
-                <button class="btn" onclick="sendCall('우식')">우식</button>
-                <button class="btn" onclick="sendCall('승환')">승환</button>
-                <button class="btn" onclick="sendCall('대성')">대성</button>
-            </div>
-            <div class="quick-group">
-                <button class="btn-sub" onclick="sendAlert('쌈배ㄱ?')">쌈배ㄱ?</button>
-                <button class="btn-sub" onclick="sendAlert('모두')">모두</button>
-            </div>
-            <div id="chat-container">
-                <div id="chat-box"></div>
-                <div class="input-area">
-                    <input type="text" id="chatInput" placeholder="메시지를 입력하세요..." onkeypress="handleEnter(event)">
-                </div>
+    <div class="container">
+        <div style="text-align: right; margin-bottom: 2px;">
+            <button id="theme-toggle-btn" onclick="toggleTheme()" style="padding: 6px 12px; border: none; border-radius: 20px; font-size: 11px; font-weight: bold; background: rgba(255,255,255,0.4); color: #fff; cursor: pointer;">
+                🌙 다크모드 전환
+            </button>
+        </div>
+
+        <div class="button-group">
+            <button class="btn" onclick="sendCall('우식')">우식</button>
+            <button class="btn" onclick="sendCall('승환')">승환</button>
+            <button class="btn" onclick="sendCall('대성')">대성</button>
+        </div>
+
+        <div class="quick-group">
+            <button class="btn-sub" onclick="sendAlert('쌈배ㄱ?')">쌈배ㄱ?</button>
+            <button class="btn-sub" onclick="sendAlert('모두')">모두</button>
+        </div>
+
+        <div id="chat-container">
+            <div id="chat-box"></div>
+            <div class="input-area">
+                <input type="text" id="chatInput" placeholder="메시지를 입력하세요..." onkeypress="handleEnter(event)">
             </div>
         </div>
     </div>
+</div>
 
     <div id="customAlert" class="alert-modal">
     <div class="alert-box">

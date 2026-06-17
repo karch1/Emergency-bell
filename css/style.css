@@ -6,8 +6,8 @@
 }
 
 body {
-    font-family: 'Pretendard', sans-serif;
-    background: #f0f2f5;
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #abc1d1; /* 🌟 카톡 기본 배경색 (하늘색) */
     height: 100vh;
     display: flex;
     flex-direction: column;
@@ -15,253 +15,279 @@ body {
 }
 
 .container {
-    padding: 15px;
+    padding: 16px;
     display: flex;
     flex-direction: column;
     height: 100%;
     min-height: 0;
-    gap: 15px;
+    gap: 12px;
 }
 
-/* 호출 버튼 그룹 (3개) */
+/* ========================================================
+   상단 호출 버튼 그룹 (우식 / 승환 / 대성)
+========================================================= */
 .button-group {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
+    gap: 8px;
 }
 
 .btn {
-    padding: 25px 0;
-    border: none;
-    border-radius: 15px;
-    font-weight: bold;
-    font-size: 16px;
-    background: white;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 16px 0;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 15px;
+    background: #ffffff;
+    color: #191919;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
     cursor: pointer;
-    transition: 0.2s;
+    transition: background 0.1s, transform 0.1s;
 }
 
 .btn:active {
-    background: #e0e0e0;
-    transform: scale(0.95);
+    background: #f2f2f2;
+    transform: scale(0.97);
 }
 
-/* 빠른 응답 그룹 (2개) */
+/* ========================================================
+   빠른 응답 그룹 (쌈배ㄱ? / 모두)
+========================================================= */
 .quick-group {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    gap: 8px;
 }
 
 .btn-sub {
-    padding: 15px;
+    padding: 14px;
     border: none;
-    border-radius: 10px;
+    border-radius: 12px;
     font-size: 14px;
-    background: #333;
-    color: white;
+    font-weight: bold;
+    background: #fee500; /* 🌟 카톡 시그니처 노란색 */
+    color: #191919;      /* 글자색은 시크한 검정 */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
     cursor: pointer;
+    transition: background 0.1s;
 }
 
-/* 채팅창 영역 */
+.btn-sub:active {
+    background: #fada0a; /* 눌렀을 때 살짝 어두워지는 노란색 */
+}
+
+/* ========================================================
+   채팅창 영역
+========================================================= */
 #chat-container {
     flex-grow: 1;
     display: flex;
     min-height: 0;
     flex-direction: column;
-    background: white;
-    border-radius: 15px;
-    overflow: auto;
-    border: 1px solid #ddd;
+    background: #abc1d1; /* 🌟 채팅 영역도 카톡 배경색 통일 */
+    border-radius: 16px;
+    overflow: hidden;
 }
 
 #chat-box {
     flex: 1;
     min-height: 0;
-    padding: 15px;
+    padding: 16px;
     overflow-y: auto;
     font-size: 14px;
+    display: flex;
+    flex-direction: column;
 }
 
+/* 하단 입력창 영역 */
 .input-area {
-    padding: 10px;
-    border-top: 1px solid #eee;
+    padding: 10px 12px;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
 }
 
 #chatInput {
     width: 100%;
-    padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 20px;
+    padding: 10px 16px;
+    border: 1px solid #e2e2e2;
+    border-radius: 18px;
+    background: #f6f6f6;
     outline: none;
-}
-
-.alert-modal {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,.55);
-    display: none;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-}
-
-/* 알럿디자인 */
-.alert-modal.show {
-    display: flex;
-}
-
-.alert-box {
-    width: 85%;
-    max-width: 350px;
-    background: #fff;
-    border-radius: 24px;
-    padding: 25px;
-    text-align: center;
-    animation: pop .25s ease;
-}
-
-.alert-box button {
-    margin-top: 20px;
-    width: 100%;
-    padding: 14px;
-    border: none;
-    border-radius: 14px;
-    background: #2563eb;
-    color: #fff;
-    font-weight: 700;
-}
-
-#alertTitle {
-    font-size: 22px;
-    font-weight: 800;
-    margin-bottom: 10px;
-}
-
-#alertMessage {
-    font-size: 18px;
-}
-
-@keyframes pop {
-    from {
-        transform: scale(.8);
-        opacity: 0;
-    }
-    to {
-        transform: scale(1);
-        opacity: 1;
-    }
-}
-
-#toast {
-    position: fixed;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%) translateY(100px);
-    background: #222;
-    color: white;
-    padding: 14px 20px;
-    border-radius: 15px;
     font-size: 14px;
-    font-weight: 600;
-    opacity: 0;
-    transition: .3s;
-    z-index: 9999;
 }
 
-#toast.show {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-}
-
-#app-screen {
-    height: 100vh;
+#chatInput:focus {
+    background: #ffffff;
+    border-color: #b2b2b2;
 }
 
 /* ========================================================
-   채팅 메시지 레이아웃 (기존 내용 보완 및 정렬 신규 추가)
+   카톡형 메시지 레이아웃 및 말풍선
 ========================================================= */
-
 .chat-message {
     display: flex;
     flex-direction: column;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
+    max-width: 100%;
 }
 
-/* 내가 보낸 메시지 세로 정렬 우측으로 */
+/* 내가 보낸 메시지 우측 정렬 */
 .chat-message.mine {
     align-items: flex-end;
 }
 
 .sender {
-    font-size: 12px;
-    color: #666;
-    margin-bottom: 4px;
-    padding: 0 6px;
+    font-size: 11px;
+    color: #4e5968;
+    margin-bottom: 3px;
+    padding: 0 4px;
 }
 
-/* 말풍선과 시간을 감싸는 바깥 래퍼 */
+/* 말풍선과 숫자를 감싸는 래퍼 */
 .message-content-wrapper {
     display: flex;
-    align-items: flex-end; /* 말풍선과 시간이 바닥을 기준으로 정렬 */
+    align-items: flex-end;
     gap: 6px;
-    max-width: 85%; /* 말풍선 최대 너비 제한 */
+    max-width: 80%; /* 너무 넓어지지 않게 조절 */
 }
 
-/* 상대방 메시지: [말풍선] [시간] 기본 순서 */
+/* 상대방 메시지 순서: [말풍선] [시간/숫자] */
 .chat-message .message-content-wrapper {
     flex-direction: row;
 }
 
-/* 내가 보낸 메시지: [시간] [말풍선] 순서로 반전 */
+/* 내가 보낸 메시지 순서: [시간/숫자] [말풍선] */
 .chat-message.mine .message-content-wrapper {
     flex-direction: row-reverse;
 }
 
-/* 말풍선 기본 공통 스타일 (래퍼 안으로 들어가서 width 100% 대응) */
+/* 말풍선 공통 디자인 */
 .bubble {
-    width: 100%;
-    padding: 12px 14px;
-    border-radius: 18px;
-    background: #ffffff;
-    box-shadow: 0 2px 8px rgba(0,0,0,.08);
+    padding: 10px 12px;
+    border-radius: 14px;
+    background: #ffffff; /* 상대방 말풍선: 흰색 */
+    color: #191919;
+    font-size: 14px;
+    line-height: 1.4;
     word-break: break-word;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
 }
 
-/* 내가 보낸 말풍선 배경색 변경 */
+/* 🌟 내가 보낸 말풍선: 카톡 노란색 */
 .mine .bubble {
-    background: #2563eb;
-    color: white;
+    background: #fee500;
+    color: #191919;
 }
 
-/* 멘션된 말풍선 배경색 변경 */
+/* 멘션방식 (나를 불렀을 때 강조) */
 .mention .bubble {
-    background: #fff3bf;
-    border: 2px solid #ffd43b;
-    color: #000;
+    background: #ffebf0;
+    border: 1.5px solid #ff4d79;
+    color: #ff4d79;
     font-weight: 700;
 }
 
 /* ========================================================
-   날짜 구분선 스타일 (신규 추가)
+   시간 및 안읽은 숫자 뱃지
+========================================================= */
+.time-and-count {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 1px;
+    min-width: max-content;
+}
+
+/* 상대방 글은 왼쪽, 내 글은 오른쪽 정렬 */
+.chat-message .time-and-count { align-items: flex-start; }
+.chat-message.mine .time-and-count { align-items: flex-end; }
+
+/* 카톡 특유의 노란빛/주황빛 안읽은 숫자 */
+.unread-count {
+    color: #fca000; 
+    font-size: 10px;
+    font-weight: bold;
+    line-height: 1;
+}
+
+.chat-time {
+    font-size: 9px;
+    color: #65717f; /* 배경 흐린 하늘색에 잘 보이는 회색 */
+    white-space: nowrap;
+}
+
+/* ========================================================
+   날짜 구분선
 ========================================================= */
 .date-divider {
     display: flex;
     align-items: center;
     text-align: center;
-    margin: 20px 0;
-    color: #999;
+    margin: 16px 0;
+    color: #ffffff;
     font-size: 11px;
-    font-weight: 500;
+    opacity: 0.8;
 }
 
-/* 날짜 좌우에 배치되는 깔끔한 가로 선 */
 .date-divider::before,
 .date-divider::after {
     content: "";
     flex: 1;
-    background: #e5e7eb;
+    background: rgba(255, 255, 255, 0.3); /* 하늘색 배경에 어울리는 흰색 반투명 선 */
     height: 1px;
     margin: 0 12px;
 }
+
+/* ========================================================
+   기타 알럿 / 토스트 모달 (기존 유지 및 카톡톤 핏)
+========================================================= */
+.alert-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.4);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+.alert-modal.show { display: flex; }
+.alert-box {
+    width: 80%;
+    max-width: 300px;
+    background: #fff;
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    animation: pop .2s ease;
+}
+.alert-box button {
+    margin-top: 16px;
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    background: #fee500;
+    color: #191919;
+    font-weight: 700;
+}
+#alertTitle { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+#alertMessage { font-size: 15px; color: #4e5968; }
+
+#toast {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: rgba(50, 50, 50, 0.9);
+    color: white;
+    padding: 10px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    opacity: 0;
+    transition: .3s;
+    z-index: 9999;
+}
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+@keyframes pop { from { transform: scale(.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+#app-screen { height: 100vh; }

@@ -28,14 +28,13 @@ db = firebase.database();
 auth = firebase.auth();
 
 // ========================================================
-// 2. [신규] 백그라운드 푸시 알림 권한 요청 함수
+// 2. 백그라운드 푸시 알림 권한 요청 함수
 // ========================================================
 function requestNotificationPermission() {
     if (!("Notification" in window)) {
         console.log("이 브라우저는 시스템 알림을 지원하지 않습니다.");
         return;
     }
-    // 알림 권한이 허용되지도 거부되지도 않은 상태라면 권한 요청 팝업 띄우기
     if (Notification.permission !== "granted" && Notification.permission !== "denied") {
         Notification.requestPermission().then(permission => {
             if (permission === "granted") {
@@ -49,17 +48,13 @@ function requestNotificationPermission() {
 // 3. 앱 구동 및 로그인 인증 체크 (DOMContentLoaded)
 // ========================================================
 window.addEventListener('DOMContentLoaded', () => {
-    // 🌟 앱 켜지자마자 PC/모바일 브라우저에 알림 권한 요청
     requestNotificationPermission();
 
-    // 화면 초기화: 로그인 상태 확인 전까지는 아무것도 보여주지 않음
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app-screen').style.display = 'none';
 
-    // 인증 상태 변화 감지
     auth.onAuthStateChanged((user) => {
         if (user) {
-            // 로그인 상태이면 매핑 확인
             if (userMapping[user.email]) {
                 myName = userMapping[user.email];
                 document.getElementById('login-screen').style.display = 'none';
@@ -77,7 +72,6 @@ window.addEventListener('DOMContentLoaded', () => {
                 auth.signOut();
             }
         } else {
-            // 로그아웃 상태일 때만 로그인 화면 표시
             document.getElementById('login-screen').style.display = 'block';
             document.getElementById('app-screen').style.display = 'none';
         }
@@ -103,7 +97,7 @@ function login() {
 }
 
 // ========================================================
-// 5. 실시간 채팅 데이터 로드 및 읽음 카운트 연동 (이미지 대응 완료)
+// 5. 실시간 채팅 데이터 로드 및 읽음 카운트 연동 (텍스트 전용 복구)
 // ========================================================
 function loadChatData() {
     db.ref('chat').limitToLast(100).on('value', (snapshot) => {
@@ -111,31 +105,25 @@ function loadChatData() {
         if (!chatBox) return;
         chatBox.innerHTML = '';
         
-        let lastDateString = ''; // 이전 메시지의 날짜를 기억할 변수
+        let lastDateString = ''; 
 
         snapshot.forEach((childSnapshot) => {
             const data = childSnapshot.val();
             const messageKey = childSnapshot.key;
             
-            // 읽은 사람 목록 객체 가져오기 (데이터가 없으면 빈 객체로 방어)
             const readUsers = data.readUsers || {};
 
-            // 내가 이 메시지의 읽은 사람 목록에 없다면, 실시간으로 DB에 '나 읽었음' 등록!
             if (myName && !readUsers[myName]) {
                 db.ref(`chat/${messageKey}/readUsers/${myName}`).set(true);
             }
 
-            // 안읽은 사람 수 계산 (전체 인원 3명 - 읽은 사람 수)
             const readCount = Object.keys(readUsers).length;
             const unreadCount = 3 - readCount;
 
-            // 카톡처럼 숫자가 0보다 클 때만 화면에 띄우기
             const unreadMarkup = unreadCount > 0 ? `<span class="unread-count">${unreadCount}</span>` : '';
             
-            // 메시지 등록 시간(Timestamp) 변환
             const msgDate = new Date(data.time || Date.now());
             
-            // 1. 날짜 구분선 생성용 포맷
             const currentDateString = msgDate.toLocaleDateString('ko-KR', {
                 year: 'numeric',
                 month: 'long',
@@ -143,24 +131,21 @@ function loadChatData() {
                 weekday: 'long'
             });
 
-            // 2. 메시지 옆에 표시할 시간 포맷
             const currentTimeString = msgDate.toLocaleTimeString('ko-KR', {
                 hour: 'numeric',
                 minute: '2-digit',
                 hour12: true
             });
 
-            // 날짜가 바뀌었으면 날짜 구분선(Date Divider) 추가
             if (currentDateString !== lastDateString) {
                 const dateDiv = document.createElement('div');
                 dateDiv.classList.add('date-divider'); 
                 dateDiv.innerText = currentDateString;
                 chatBox.appendChild(dateDiv);
                 
-                lastDateString = currentDateString; // 날짜 갱신
+                lastDateString = currentDateString; 
             }
 
-            // 메시지 요소 생성
             const div = document.createElement('div');
             div.classList.add('chat-message');
 
@@ -172,16 +157,9 @@ function loadChatData() {
                 div.classList.add('mention');
             }
 
-            // 🌟 [핵심수정] 데이터에 이미지 주소(imgUrl)가 있으면 이미지 태그를, 없으면 일반 텍스트를 출력!
-            let bubbleContent = '';
-            if (data.imgUrl) {
-                // 이미지를 클릭하면 새 창에서 원본을 크게 볼 수 있게 <a> 링크 처리
-                bubbleContent = `<a href="${data.imgUrl}" target="_blank"><img src="${data.imgUrl}" class="chat-image-preview" alt="전송 이미지"></a>`;
-            } else {
-                bubbleContent = data.msg;
-            }
+            // 🛠️ 이미지 주소(data.imgUrl) 확인 로직 완전히 빼고, 형이 치는 순수 텍스트(data.msg)만 깔끔하게 출력!
+            const bubbleContent = data.msg;
 
-            // 숫자(unreadMarkup)와 시간이 세로로 이쁘게 배치되도록 HTML 구조 변경
             div.innerHTML = `
                 <div class="sender">${data.sender}</div>
                 <div class="message-content-wrapper">
@@ -260,8 +238,10 @@ function sendCall(target) {
     showToast(target + " 호출 완료!");
 }
 
+// 토스트 메시지 띄우기
 function showToast(msg) {
     const toast = document.getElementById('toast');
+    if (!toast) return;
     toast.innerText = msg;
     toast.classList.add('show');
 
@@ -270,6 +250,7 @@ function showToast(msg) {
     }, 2000);
 }
 
+// 메시지 전송
 function sendMessage(text) {
     if (!myName) return;
     let mention = null;
@@ -289,6 +270,7 @@ function sendMessage(text) {
     });
 }
 
+// 엔터키 제어
 function handleEnter(e) {
     if (e.key === 'Enter') {
         const input = document.getElementById('chatInput');
@@ -299,19 +281,18 @@ function handleEnter(e) {
     }
 }
 
-// 🌟 [개조 완료] 모달 알림창과 동시에 시스템 백그라운드 푸시 알림 발송 로직 추가
+// 알림 모달 & 푸시 알림 제어
 function showAlert(title, msg, vibrate = false) {
     document.getElementById('alertTitle').innerText = title;
     document.getElementById('alertMessage').innerText = msg;
     document.getElementById('customAlert').classList.add('show');
 
-    // 브라우저가 백그라운드(창 내려감, 딴짓 중)일 때 시스템 OS 팝업 알림 강제 발송
     if (Notification.permission === "granted") {
         navigator.serviceWorker.ready.then(registration => {
             registration.showNotification(title, {
                 body: msg,
                 vibrate: [200, 100, 200],
-                tag: 'emergency-call', // 알림 중복 쌓임 방지 키값
+                tag: 'emergency-call', 
                 renotify: true
             });
         });
@@ -322,11 +303,11 @@ function showAlert(title, msg, vibrate = false) {
     }
 }
 
+// 공용 버튼 제어 및 10초 딜레이
 function sendAlert(type) {
     if (!myName) return;
     const now = Date.now();
 
-    // 🌟 쌈배ㄱ, 모두 버튼 포함해서 '모든 버튼' 10초 연타 제한!
     if (now - lastAlertTime < 10000) {
         showToast("3초 후 다시 시도하세요");
         return;
@@ -365,7 +346,7 @@ function toggleTheme() {
     }
 }
 
-// 세션 시작 시 세팅해둔 테마값 영구 로드
+// 기존 테마 세팅 로드
 window.addEventListener('load', () => {
     const savedTheme = localStorage.getItem('theme');
     const btn = document.getElementById('theme-toggle-btn');
@@ -375,70 +356,4 @@ window.addEventListener('load', () => {
     }
 });
 
-// ========================================================
-// 9. [신규] 이미지 압축 및 Firebase Storage 업로드
-// ========================================================
-function uploadImage(input) {
-    if (!myName) return;
-    const file = input.files[0];
-    if (!file) return;
-
-    showToast("이미지 뼈 때리게 다이어트 중...");
-
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = function (event) {
-        const img = new Image();
-        img.src = event.target.result;
-        img.onload = function () {
-            // 캔버스로 가로 800px 맞춤 해상도 다이어트
-            const canvas = document.createElement('canvas');
-            const max_size = 800; 
-            let width = img.width;
-            let height = img.height;
-
-            if (width > height) {
-                if (width > max_size) {
-                    height *= max_size / width;
-                    width = max_size;
-                }
-            } else {
-                if (height > max_size) {
-                    width *= max_size / height;
-                    height = max_size;
-                }
-            }
-            canvas.width = width;
-            canvas.height = height;
-
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, width, height);
-
-            // 화질 70%로 낮춰서 용량 90% 리사이징 컷
-            canvas.toBlob(function (blob) {
-                const filename = Date.now() + "_compressed.jpg";
-                const storageRef = firebase.storage().ref('chat_images/' + filename);
-
-                storageRef.put(blob).then((snapshot) => {
-                    return snapshot.ref.getDownloadURL();
-                }).then((downloadURL) => {
-                    const initialReadUsers = {};
-                    initialReadUsers[myName] = true;
-
-                    // 메시지 DB에 이미지 다운로드 링크 저장
-                    db.ref('chat').push({ 
-                        sender: myName, 
-                        msg: "", 
-                        imgUrl: downloadURL, 
-                        time: Date.now(),
-                        readUsers: initialReadUsers 
-                    });
-                    input.value = ""; // 초기화
-                }).catch((error) => {
-                    console.error(error);
-                    showToast("이미지 전송 실패 ㅠㅠ");
-                });
-            }, 'image/jpeg', 0.7);
-        };
-    };
-}
+// 🛠️ 9번 이미지 업로드(uploadImage) 통째로 영구 삭제 완료!

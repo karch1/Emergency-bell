@@ -66,11 +66,11 @@ function login() {
             console.log("로그인 성공:", result.user.email);
         })
         .catch((error) => {
-    showAlert(
-        "로그인 실패",
-        error.message
-    );
-});
+        showAlert(
+            "로그인 실패",
+            error.message
+        );
+    });
 }
 
 function loadChatData() {
@@ -83,11 +83,27 @@ function loadChatData() {
 
         snapshot.forEach((childSnapshot) => {
             const data = childSnapshot.val();
+            const messageKey = childSnapshot.key;
+            
+            // 🌟 읽은 사람 목록 객체 가져오기 (데이터가 없으면 빈 객체로 방어)
+            const readUsers = data.readUsers || {};
+
+            // 🌟 내가 이 메시지의 읽은 사람 목록에 없다면, 실시간으로 DB에 '나 읽었음' 등록!
+            if (myName && !readUsers[myName]) {
+                db.ref(`chat/${messageKey}/readUsers/${myName}`).set(true);
+            }
+
+            // 🌟 안읽은 사람 수 계산 (전체 인원 3명 - 읽은 사람 수)
+            const readCount = Object.keys(readUsers).length;
+            const unreadCount = 3 - readCount;
+
+            // 🌟 카톡처럼 숫자가 0보다 클 때만 화면에 띄우기
+            const unreadMarkup = unreadCount > 0 ? `<span class="unread-count">${unreadCount}</span>` : '';
             
             // 메시지 등록 시간(Timestamp) 변환
             const msgDate = new Date(data.time || Date.now());
             
-            // 1. 날짜 구분선 생성용 포맷 (예: 2026년 6월 17일 수요일)
+            // 1. 날짜 구분선 생성용 포맷
             const currentDateString = msgDate.toLocaleDateString('ko-KR', {
                 year: 'numeric',
                 month: 'long',
@@ -95,7 +111,7 @@ function loadChatData() {
                 weekday: 'long'
             });
 
-            // 2. 메시지 옆에 표시할 시간 포맷 (예: 오후 1:26)
+            // 2. 메시지 옆에 표시할 시간 포맷
             const currentTimeString = msgDate.toLocaleTimeString('ko-KR', {
                 hour: 'numeric',
                 minute: '2-digit',
@@ -105,11 +121,7 @@ function loadChatData() {
             // 날짜가 바뀌었으면 날짜 구분선(Date Divider) 추가
             if (currentDateString !== lastDateString) {
                 const dateDiv = document.createElement('div');
-                dateDiv.classList.add('date-divider'); // CSS 스타일링용 클래스
-                dateDiv.style.textAlign = 'center';
-                dateDiv.style.margin = '15px 0';
-                dateDiv.style.color = '#888';
-                dateDiv.style.fontSize = '12px';
+                dateDiv.classList.add('date-divider'); 
                 dateDiv.innerText = currentDateString;
                 chatBox.appendChild(dateDiv);
                 
@@ -128,12 +140,15 @@ function loadChatData() {
                 div.classList.add('mention');
             }
 
-            // 시간(time)을 화면에 표시할 수 있도록 HTML 구조 추가
+            // 숫자(unreadMarkup)와 시간이 세로로 이쁘게 배치되도록 HTML 구조 변경
             div.innerHTML = `
                 <div class="sender">${data.sender}</div>
-                <div class="message-content-wrapper" style="display: flex; align-items: flex-end; gap: 5px;">
+                <div class="message-content-wrapper">
                     <div class="bubble">${data.msg}</div>
-                    <span class="chat-time" style="font-size: 10px; color: #999; white-space: nowrap;">${currentTimeString}</span>
+                    <div class="time-and-count">
+                        ${unreadMarkup}
+                        <span class="chat-time">${currentTimeString}</span>
+                    </div>
                 </div>
             `;
 
@@ -218,6 +233,7 @@ function showToast(msg) {
     }, 2000);
 }
 
+// 🌟 [수정 완료] 메시지를 처음 보낼 때 '나'는 읽었으므로 내 이름을 포함해서 전송하는 로직 반영
 function sendMessage(text) {
     if (!myName) return;
     let mention = null;
@@ -225,7 +241,16 @@ function sendMessage(text) {
     else if (text.includes('우식')) mention = '우식';
     else if (text.includes('승환')) mention = '승환';
 
-    db.ref('chat').push({ sender: myName, msg: text, mention: mention, time: Date.now() });
+    const initialReadUsers = {};
+    initialReadUsers[myName] = true;
+
+    db.ref('chat').push({ 
+        sender: myName, 
+        msg: text, 
+        mention: mention, 
+        time: Date.now(),
+        readUsers: initialReadUsers 
+    });
 }
 
 function handleEnter(e) {

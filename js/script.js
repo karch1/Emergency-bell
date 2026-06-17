@@ -78,10 +78,46 @@ function loadChatData() {
         const chatBox = document.getElementById('chat-box');
         if (!chatBox) return;
         chatBox.innerHTML = '';
+        
+        let lastDateString = ''; // 이전 메시지의 날짜를 기억할 변수
+
         snapshot.forEach((childSnapshot) => {
             const data = childSnapshot.val();
-            const div = document.createElement('div');
+            
+            // 메시지 등록 시간(Timestamp) 변환
+            const msgDate = new Date(data.time || Date.now());
+            
+            // 1. 날짜 구분선 생성용 포맷 (예: 2026년 6월 17일 수요일)
+            const currentDateString = msgDate.toLocaleDateString('ko-KR', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                weekday: 'long'
+            });
 
+            // 2. 메시지 옆에 표시할 시간 포맷 (예: 오후 1:26)
+            const currentTimeString = msgDate.toLocaleTimeString('ko-KR', {
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+            });
+
+            // 날짜가 바뀌었으면 날짜 구분선(Date Divider) 추가
+            if (currentDateString !== lastDateString) {
+                const dateDiv = document.createElement('div');
+                dateDiv.classList.add('date-divider'); // CSS 스타일링용 클래스
+                dateDiv.style.textAlign = 'center';
+                dateDiv.style.margin = '15px 0';
+                dateDiv.style.color = '#888';
+                dateDiv.style.fontSize = '12px';
+                dateDiv.innerText = currentDateString;
+                chatBox.appendChild(dateDiv);
+                
+                lastDateString = currentDateString; // 날짜 갱신
+            }
+
+            // 메시지 요소 생성
+            const div = document.createElement('div');
             div.classList.add('chat-message');
 
             if (data.sender === myName) {
@@ -92,17 +128,21 @@ function loadChatData() {
                 div.classList.add('mention');
             }
 
+            // 시간(time)을 화면에 표시할 수 있도록 HTML 구조 추가
             div.innerHTML = `
-            <div class="sender">${data.sender}</div>
-            <div class="bubble">${data.msg}</div>
+                <div class="sender">${data.sender}</div>
+                <div class="message-content-wrapper" style="display: flex; align-items: flex-end; gap: 5px;">
+                    <div class="bubble">${data.msg}</div>
+                    <span class="chat-time" style="font-size: 10px; color: #999; white-space: nowrap;">${currentTimeString}</span>
+                </div>
             `;
 
             chatBox.appendChild(div);
-            });
+        });
         
-            requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
             setTimeout(() => {
-            chatBox.scrollTop = chatBox.scrollHeight;
+                chatBox.scrollTop = chatBox.scrollHeight;
             }, 0);
         });
     });

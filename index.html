@@ -52,6 +52,18 @@
             <button onclick="closeAlert()">확인</button>
         </div>
     </div>
+
+    <div id="deleteAlert" class="alert-modal">
+        <div class="alert-box" style="border-top: 5px solid #ff4d4d;">
+            <div style="font-size: 18px; font-weight: bold; color: #333; margin-bottom: 10px;">메시지 삭제</div>
+            <div style="font-size: 14px; color: #666; margin-bottom: 20px;">이 메시지를 정말로 삭제하시겠습니까?<br>(모두의 화면에서 사라집니다)</div>
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <button onclick="deleteMessage()" style="background: #ff4d4d; color: white; padding: 10px 20px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">삭제</button>
+                <button onclick="closeDeleteConfirm()" style="background: #ccc; color: #333; padding: 10px 20px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">취소</button>
+            </div>
+        </div>
+    </div>
+
     <div id="toast"></div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>

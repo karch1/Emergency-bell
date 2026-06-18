@@ -21,6 +21,7 @@ let db, auth, myName;
 let lastAlertTime = 0;
 let alertInitialized = false;
 let callInitialized = false;
+let typingTimeout; // 타이핑 상태 해제 타이머 제어용 변수
 
 // Firebase 초기화
 firebase.initializeApp(firebaseConfig);
@@ -63,6 +64,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 loadChatData();
                 listenAlerts();
                 listenCalls();
+                listenTyping(); // 실시간 타이핑 중인 사람 감시 리스너 실행
                 
             } else {
                 showAlert(
@@ -76,6 +78,23 @@ window.addEventListener('DOMContentLoaded', () => {
             document.getElementById('app-screen').style.display = 'none';
         }
     });
+
+    // 실시간 내 타이핑 상태 감지 및 DB 전송 (디바운스 적용)
+    const chatInput = document.getElementById('chatInput');
+    if (chatInput) {
+        chatInput.addEventListener('input', () => {
+            if (!myName) return;
+
+            // 입력이 시작되면 DB에 타이핑 상태를 true로 설정
+            db.ref(`typing/${myName}`).set(true);
+
+            // 사용자가 입력을 멈추고 1.5초가 지나면 자동으로 false로 변경
+            clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(() => {
+                db.ref(`typing/${myName}`).set(false);
+            }, 1500);
+        });
+    }
 });
 
 // ========================================================
@@ -223,6 +242,33 @@ function listenCalls() {
     });
 }
 
+function listenTyping() {
+    db.ref('typing').on('value', (snapshot) => {
+        const typingData = snapshot.val() || {};
+        const typingUsers = [];
+
+        // 내가 아닌 다른 사람이 입력 중인 경우만 추출
+        Object.keys(typingData).forEach(user => {
+            if (user !== myName && typingData[user] === true) {
+                typingUsers.push(user);
+            }
+        });
+
+        const typingIndicator = document.getElementById('typing-indicator');
+        if (!typingIndicator) return;
+
+        if (typingUsers.length > 0) {
+            // 다른 사람이 입력 중일 때 화면에 출력
+            typingIndicator.innerText = `${typingUsers.join(', ')}님이 입력 중... 💬`;
+            typingIndicator.style.display = 'block';
+        } else {
+            // 아무도 입력 중이 아니면 숨김
+            typingIndicator.innerText = '';
+            typingIndicator.style.display = 'none';
+        }
+    });
+}
+
 // ========================================================
 // 7. 데이터 전송 및 컴포넌트 제어 함수들
 // ========================================================
@@ -268,6 +314,10 @@ function sendMessage(text) {
         time: Date.now(),
         readUsers: initialReadUsers 
     });
+
+    // 메시지 전송이 완료되면 내 타이핑 상태를 즉시 false로 변경 및 타이머 클리어
+    clearTimeout(typingTimeout);
+    db.ref(`typing/${myName}`).set(false);
 }
 
 // 엔터키 제어

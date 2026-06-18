@@ -37,7 +37,8 @@
 
             <div id="chat-box" class="chat-box"></div>
 
-            <!-- 🛠️ 이미지 첨부 버튼 싹 빼고 깔끔하게 텍스트 입력창만 남김! -->
+            <div id="typing-indicator" style="display: none; padding: 5px 15px; font-size: 12px; color: #888; font-style: italic;"></div>
+
             <div class="chat-input-container">
                 <input type="text" id="chatInput" onkeydown="handleEnter(event)" placeholder="메시지를 입력하세요...">
             </div>
@@ -53,7 +54,6 @@
     </div>
     <div id="toast"></div>
 
-    <!-- 파이어베이스 기본 라이브러리 삼형제만 깔끔하게 유지 (Storage 삭제) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>

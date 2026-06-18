@@ -163,30 +163,46 @@ body {
     flex-direction: row;
 }
 
-/* 내가 쓴 글 레이아웃 재배치 (삭제 버튼이 말풍선 왼쪽에 이쁘게 가도록 설정) */
+/* 내가 쓴 메시지 감싸는 영역에 호버 타겟팅 및 삭제 버튼 절대 배치를 위해 relative 설정 */
 .chat-message.mine .message-content-wrapper {
+    position: relative;
     flex-direction: row-reverse;
 }
 
-/* 🛠️ [신규 추가] 빠른 한 줄 삭제 X 버튼 스타일 디자인 */
+/* 🛠️ [디자인 수정] 마우스 올렸을 때만(Hover) 뜨는 미니멀 둥근 × 삭제 버튼 스타일 */
 .quick-delete-btn {
-    display: inline-block;
-    margin-right: 4px;
-    color: #ff4d4d;
-    cursor: pointer;
-    font-size: 11px;
-    font-weight: bold;
-    background: rgba(255, 77, 77, 0.15);
-    padding: 3px 7px;
-    border-radius: 10px;
-    align-self: flex-end;
-    margin-bottom: 2px;
-    user-select: none;
-    transition: background 0.1s, color 0.1s;
-}
-.quick-delete-btn:active {
+    position: absolute;
+    top: -8px;
+    right: -8px; /* 말풍선 우측 상단 모서리에 이쁘게 걸치도록 설정 */
+    width: 18px;
+    height: 18px;
     background: #ff4d4d;
     color: #ffffff;
+    border-radius: 50%;
+    font-size: 11px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    user-select: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.15s ease, visibility 0.15s ease, transform 0.1s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    z-index: 10;
+}
+
+/* 🔥 핵심: 내가 쓴 메시지 영역에 마우스를 올리면(Hover) X 버튼이 스르륵 등장 */
+.chat-message.mine .message-content-wrapper:hover .quick-delete-btn {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* 버튼 눌렀을 때 손맛을 위한 스케일 다운 효과 */
+.quick-delete-btn:active {
+    transform: scale(0.85);
+    background: #e60000;
 }
 
 /* 말풍선 공통 디자인 */
@@ -420,10 +436,10 @@ body.dark-mode #alertTitle { color: #ffffff; }
 body.dark-mode #alertMessage { color: #b0b3b8; }
 body.dark-mode .alert-box button { background: #2563eb; color: #fff; }
 
-/* 다크 모드일 때 미니 X 버튼 스타일 보정 */
+/* 🛠️ [디자인 보정] 다크 모드일 때 미니 X 버튼 스타일 보정 */
 body.dark-mode .quick-delete-btn {
-    background: rgba(255, 77, 77, 0.25);
-    color: #ff6b6b;
+    background: #ff6b6b;
+    color: #ffffff;
 }
 body.dark-mode .quick-delete-btn:active {
     background: #ff4d4d;

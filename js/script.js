@@ -21,6 +21,7 @@ let db, auth, myName;
 let lastAlertTime = 0;
 let alertInitialized = false;
 let callInitialized = false;
+let randomInitialized = false; // [신규] 랜덤 돌리기 리스너 초반 무시용 플래그
 let typingTimeout; // 타이핑 상태 해제 타이머 제어용 변수
 let longPressTimeout; // 꾹 누르기(롱프레스) 타이머 변수
 
@@ -67,6 +68,10 @@ window.addEventListener('DOMContentLoaded', () => {
                 listenCalls();
                 listenTyping(); // 실시간 타이핑 중인 사람 감시 리스너 실행
                 
+                // [신규 기능 리스너 연결]
+                listenStatus(); // 1번 기능: 멤버 실시간 상태 모니터 수신기
+                listenRandomRolls(); // 3번 기능: 랜덤 뽑기 결과 수신기
+
                 // 화면이 확실히 block으로 켜진 직후에 입력창 이벤트를 바인딩
                 initTypingEvent();
                 
@@ -127,7 +132,7 @@ function login() {
 }
 
 // ========================================================
-// 5. 실시간 채팅 데이터 로드 및 읽음 카운트 연동 (텍스트 전용 복구)
+// 5. 실시간 채팅 데이터 로드 및 읽음 카운트 연동
 // ========================================================
 function loadChatData() {
     db.ref('chat').limitToLast(100).on('value', (snapshot) => {
@@ -178,6 +183,7 @@ function loadChatData() {
 
             const div = document.createElement('div');
             div.classList.add('chat-message');
+            div.setAttribute('data-msg-text', data.msg || ''); // 🔍 검색 필터링을 위한 커스텀 속성 지정
 
             if (data.sender === myName) {
                 div.classList.add('mine');
@@ -189,7 +195,7 @@ function loadChatData() {
 
             const bubbleContent = data.msg;
 
-            // 🛠️ 디자인 보정: 'x 삭제'라는 긴 문자열을 빼고 둥근 원형 버튼에 맞는 미니멀한 '×' 기호로 마크업 전면 교체
+            // 디자인 보정: 'x 삭제'라는 긴 문자열을 빼고 둥근 원형 버튼에 맞는 미니멀한 '×' 기호로 마크업 전면 교체
             const deleteBtnMarkup = (data.sender === myName) ? `<span class="quick-delete-btn" onclick="showDeleteConfirm('${messageKey}')">×</span>` : '';
 
             div.innerHTML = `
@@ -220,11 +226,15 @@ function loadChatData() {
             chatBox.appendChild(div);
         });
         
-        requestAnimationFrame(() => {
-            setTimeout(() => {
-                chatBox.scrollTop = chatBox.scrollHeight;
-            }, 0);
-        });
+        // 검색창이 비어있을 때만 스크롤을 최하단으로 내림 (검색 도중 스크롤 튕김 방지)
+        const searchInput = document.getElementById('searchInput');
+        if (!searchInput || searchInput.value.trim() === "") {
+            requestAnimationFrame(() => {
+                setTimeout(() => {
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                }, 0);
+            });
+        }
     });
 }
 
@@ -306,9 +316,103 @@ function listenTyping() {
     });
 }
 
+// 🟢 [1번 기능 수신기] 다른 멤버들의 상태 변경값을 실시간으로 받아 상단 보드에 그리기
+function listenStatus() {
+    db.ref('status').on('value', (snapshot) => {
+        const statusData = snapshot.val() || {};
+        const monitorBoard = document.getElementById('status-monitor-board');
+        if (!monitorBoard) return;
+
+        // 고정 멤버 3인 설정 기본값 정의
+        const members = ['우식', '승환', '대성'];
+        let htmlContent = '';
+
+        members.forEach(member => {
+            const currentStatus = statusData[member] || '⚪ 미설정';
+            // 내 이름 옆에는 (나) 표시 추가해서 가독성 높이기
+            const label = (member === myName) ? `${member}(나)` : member;
+            htmlContent += `<div style="padding: 2px 6px;">${label}: <span style="font-weight:800;">${currentStatus}</span></div>`;
+        });
+
+        monitorBoard.innerHTML = htmlContent;
+    });
+}
+
+// 📊 [3번 기능 수신기] 누군가 주사위를 굴렸을 때 모든 사람의 화면에 결과 모달창 띄우기
+function listenRandomRolls() {
+    db.ref('rolls').limitToLast(1).on('child_added', (snapshot) => {
+        if (!randomInitialized) {
+            randomInitialized = true;
+            return;
+        }
+        const data = snapshot.val();
+        
+        // 결과 모달창 열고 당첨자 텍스트 세팅
+        const modal = document.getElementById('randomResultModal');
+        const nameView = document.getElementById('randomResultName');
+        if (modal && nameView) {
+            nameView.innerText = `${data.picked} 님 낙점!!`;
+            modal.classList.add('show');
+            
+            // 스마트폰 진동으로 당첨 알림 극대화 효과
+            if (navigator.vibrate) {
+                navigator.vibrate([100, 50, 100, 50, 300]);
+            }
+        }
+    });
+}
+
 // ========================================================
 // 7. 데이터 전송 및 컴포넌트 제어 함수들
 // ========================================================
+
+// 🟢 [1번 기능 함수] 내가 내 상태 버튼을 누르면 Firebase에 실시간 저장
+function changeMyStatus(statusText) {
+    if (!myName) return;
+    db.ref(`status/${myName}`).set(statusText)
+        .then(() => {
+            showToast(`내 상태가 [${statusText}]으로 변경됨!`);
+        });
+}
+
+// 📊 [3번 기능 함수] 내기 돌리기 버튼을 누르면 우식, 승환, 대성 중 1명을 무작위로 추출하여 파베에 전송
+function rollTheDice() {
+    if (!myName) return;
+    const candidates = ['우식', '승환', '대성'];
+    const randomIndex = Math.floor(Math.random() * candidates.length);
+    const luckyPerson = candidates[randomIndex];
+
+    db.ref('rolls').push({
+        roller: myName,
+        picked: luckyPerson,
+        time: Date.now()
+    }).then(() => {
+        showToast("룰렛 가동 완료맨!");
+    });
+}
+
+// 📊 [3번 기능 함수] 결과 모달창 닫기
+function closeRandomModal() {
+    const modal = document.getElementById('randomResultModal');
+    if (modal) modal.classList.remove('show');
+}
+
+// 🔍 [4번 기능 함수] 검색창에 글자를 입력할 때마다 말풍선들을 필터링 처리
+function filterMessages() {
+    const keyword = document.getElementById('searchInput').value.toLowerCase().trim();
+    const messages = document.querySelectorAll('.chat-message');
+
+    messages.forEach(msg => {
+        const text = msg.getAttribute('data-msg-text').toLowerCase();
+        // 날짜 구분선 엘리먼트는 필터링 대상에서 제외되도록 처리됨
+        if (text.includes(keyword)) {
+            msg.style.display = 'flex'; // 일치하면 보이기
+        } else {
+            msg.style.display = 'none'; // 다르면 숨기기
+        }
+    });
+}
+
 function sendCall(target) {
     if (!myName) return;
 
@@ -409,7 +513,7 @@ function closeAlert() {
     document.getElementById('customAlert').classList.remove('show');
 }
 
-// 🛠️ 삭제 확인 모달 제어 및 실시간 DB 삭제 함수
+// 삭제 확인 모달 제어 및 실시간 DB 삭제 함수
 let targetMessageKey = null;
 function showDeleteConfirm(key) {
     targetMessageKey = key;

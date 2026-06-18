@@ -1,4 +1,4 @@
-const CACHE_NAME = 'emergency-bell-v8';
+const CACHE_NAME = 'emergency-bell-v9';
 
 const urlsToCache = [
   './',

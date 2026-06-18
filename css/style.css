@@ -1,4 +1,40 @@
 /* ========================================================
+   [신규 기능 스타일] 상단 집중 배치 영역
+========================================================= */
+
+/* 🔍 4번 기능: 실시간 대화 검색창 */
+.search-container {
+    width: 100%;
+}
+
+/* 🟢 1번 기능: 내 상태 선택 태그 버튼 양식 */
+.status-tag-btn {
+    padding: 4px 8px;
+    border: none;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    background: #ffffff;
+    color: #333;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    transition: transform 0.1s;
+}
+.status-tag-btn:active { 
+    transform: scale(0.95); 
+}
+
+/* 📊 3번 기능: 점심/커피 내기 랜덤 돌리기 민트 버튼 */
+.btn-random {
+    transition: background 0.1s, transform 0.1s;
+}
+.btn-random:active {
+    transform: scale(0.98);
+    background: #00a38b !important;
+}
+
+
+/* ========================================================
    기본 초기화 및 기본 모드 (기본은 시원한 여름 에메랄드 바다)
 ========================================================= */
 * {
@@ -169,7 +205,7 @@ body {
     flex-direction: row-reverse;
 }
 
-/* 🛠️ [디자인 수정] 마우스 올렸을 때만(Hover) 뜨는 미니멀 둥근 × 삭제 버튼 스타일 */
+/* 🛠️ 마우스 올렸을 때만(Hover) 뜨는 미니멀 둥근 × 삭제 버튼 스타일 */
 .quick-delete-btn {
     position: absolute;
     top: -8px;
@@ -358,6 +394,21 @@ body.dark-mode #chat-container {
     background: #1e1e1e;
 }
 
+/* 🛠️ [다크모드 신규 대응] 검색창 배경 어둡게 */
+body.dark-mode #searchInput {
+    background: #2d2d2d;
+    color: #ffffff;
+}
+
+/* 🛠️ [다크모드 신규 대응] 상태 바 라벨 색상 보정 */
+body.dark-mode .status-label {
+    color: #ffffff;
+}
+body.dark-mode .status-tag-btn {
+    background: #3a3b3c;
+    color: #ffffff;
+}
+
 /* 상단 버튼 다크 브릭 스타일 */
 body.dark-mode .btn {
     background: #2d2d2d;
@@ -436,7 +487,7 @@ body.dark-mode #alertTitle { color: #ffffff; }
 body.dark-mode #alertMessage { color: #b0b3b8; }
 body.dark-mode .alert-box button { background: #2563eb; color: #fff; }
 
-/* 🛠️ [디자인 보정] 다크 모드일 때 미니 X 버튼 스타일 보정 */
+/* 🛠️ 다크 모드일 때 미니 X 버튼 스타일 보정 */
 body.dark-mode .quick-delete-btn {
     background: #ff6b6b;
     color: #ffffff;

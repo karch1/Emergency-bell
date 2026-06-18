@@ -18,10 +18,15 @@
 
     <div id="app-screen" style="display:none;">
         <div class="container">
+            
             <div style="text-align: right; margin-bottom: 2px;">
                 <button id="theme-toggle-btn" onclick="toggleTheme()" style="padding: 6px 12px; border: none; border-radius: 20px; font-size: 11px; font-weight: bold; background: rgba(255,255,255,0.4); color: #fff; cursor: pointer;">
                     🌙 다크모드 전환
                 </button>
+            </div>
+
+            <div class="search-container" style="margin-bottom: 4px;">
+                <input type="text" id="searchInput" placeholder="🔍 대화 내용 검색 (비우면 전체보기)" oninput="filterMessages()" style="width: 100%; padding: 10px 14px; border: none; border-radius: 12px; font-size: 13px; background: rgba(255, 255, 255, 0.8); outline: none; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
             </div>
 
             <div class="button-group">
@@ -33,6 +38,19 @@
             <div class="quick-group">
                 <button class="btn-sub" onclick="sendAlert('쌈배ㄱ?')">쌈배ㄱ?</button>
                 <button class="btn-sub" onclick="sendAlert('모두')">모두</button>
+            </div>
+
+            <div class="status-setter-container" style="display: flex; align-items: center; gap: 6px; background: rgba(255, 255, 255, 0.25); padding: 6px 10px; border-radius: 12px; margin-top: 2px;">
+                <span class="status-label" style="font-size: 11px; font-weight: 700; color: #fff;">내 상태:</span>
+                <button class="status-tag-btn status-online" onclick="changeMyStatus('🟢 업무중')">🟢 업무중</button>
+                <button class="status-tag-btn status-busy" onclick="changeMyStatus('🔴 통화중')">🔴 통화중</button>
+                <button class="status-tag-btn status-driving" onclick="changeMyStatus('🟡 운전중')">🟡 운전중</button>
+            </div>
+
+            <div id="status-monitor-board" style="display: flex; justify-content: space-around; background: rgba(0, 0, 0, 0.15); padding: 6px; border-radius: 10px; font-size: 11px; font-weight: bold; color: #ffffff; margin-top: 2px;"></div>
+
+            <div class="random-bar" style="margin-top: 2px;">
+                <button class="btn-random" onclick="rollTheDice()" style="width: 100%; padding: 10px; border: none; border-radius: 12px; background: #00bfa5; color: #ffffff; font-size: 13px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">🎯 오늘 점심/커피 내기 돌리기! (랜덤)</button>
             </div>
 
             <div id="chat-container">
@@ -66,6 +84,15 @@
         </div>
     </div>
 
+    <div id="randomResultModal" class="alert-modal">
+        <div class="alert-box" style="border-top: 5px solid #ffab40; max-width: 280px;">
+            <div style="font-size: 18px; font-weight: bold; color: #333; margin-bottom: 10px;">🎯 당첨자 발표 🎯</div>
+            <div id="randomResultName" style="font-size: 26px; font-weight: 900; color: #ffab40; margin: 15px 0; padding: 10px; background: #fff3e0; border-radius: 12px; border: 1px dashed #ffab40;">-</div>
+            <div style="font-size: 13px; color: #666; margin-bottom: 15px;">오늘의 행운아(혹은 독박)는 바로 당신맨! 🎉</div>
+            <button onclick="closeRandomModal()" style="background: #0f4c5c; color: white; padding: 10px 20px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; width: 100%;">확인맨! (닫기)</button>
+        </div>
+    </div>
+
     <div id="toast"></div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -73,6 +100,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 
     <script src="js/script.js"></script>
+    
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {

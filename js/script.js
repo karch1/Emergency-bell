@@ -189,8 +189,8 @@ function loadChatData() {
 
             const bubbleContent = data.msg;
 
-            // 🔒 내가 작성한 글일 때만 빠른 삭제 미니 x 버튼 마크업 주입
-            const deleteBtnMarkup = (data.sender === myName) ? `<span class="quick-delete-btn" onclick="showDeleteConfirm('${messageKey}')">x 삭제</span>` : '';
+            // 🛠️ 디자인 보정: 'x 삭제'라는 긴 문자열을 빼고 둥근 원형 버튼에 맞는 미니멀한 '×' 기호로 마크업 전면 교체
+            const deleteBtnMarkup = (data.sender === myName) ? `<span class="quick-delete-btn" onclick="showDeleteConfirm('${messageKey}')">×</span>` : '';
 
             div.innerHTML = `
                 <div class="sender">${data.sender}</div>

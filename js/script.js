@@ -22,6 +22,7 @@ let lastAlertTime = 0;
 let alertInitialized = false;
 let callInitialized = false;
 let typingTimeout; // 타이핑 상태 해제 타이머 제어용 변수
+let longPressTimeout; // 꾹 누르기(롱프레스) 타이머 변수
 
 // Firebase 초기화
 firebase.initializeApp(firebaseConfig);
@@ -66,6 +67,9 @@ window.addEventListener('DOMContentLoaded', () => {
                 listenCalls();
                 listenTyping(); // 실시간 타이핑 중인 사람 감시 리스너 실행
                 
+                // 🚀 화면이 확실히 block으로 켜진 직후에 입력창 이벤트를 바인딩해줍니다!
+                initTypingEvent();
+                
             } else {
                 showAlert(
                     "접근 거부",
@@ -78,24 +82,31 @@ window.addEventListener('DOMContentLoaded', () => {
             document.getElementById('app-screen').style.display = 'none';
         }
     });
-
-    // 실시간 내 타이핑 상태 감지 및 DB 전송 (디바운스 적용)
-    const chatInput = document.getElementById('chatInput');
-    if (chatInput) {
-        chatInput.addEventListener('input', () => {
-            if (!myName) return;
-
-            // 입력이 시작되면 DB에 타이핑 상태를 true로 설정
-            db.ref(`typing/${myName}`).set(true);
-
-            // 사용자가 입력을 멈추고 1.5초가 지나면 자동으로 false로 변경
-            clearTimeout(typingTimeout);
-            typingTimeout = setTimeout(() => {
-                db.ref(`typing/${myName}`).set(false);
-            }, 1500);
-        });
-    }
 });
+
+// 타이핑 이벤트 초기화 함수 분리
+function initTypingEvent() {
+    const chatInput = document.getElementById('chatInput');
+    if (!chatInput) return;
+
+    // 이벤트가 중복으로 쌓이지 않도록 기존 껍데기 제거 후 재등록
+    chatInput.removeEventListener('input', handleTypingInput);
+    chatInput.addEventListener('input', handleTypingInput);
+}
+
+// 실시간 내 타이핑 상태 감지 로직 (디바운스 적용)
+function handleTypingInput() {
+    if (!myName) return;
+
+    // 입력이 시작되면 DB에 타이핑 상태를 true로 설정
+    db.ref(`typing/${myName}`).set(true);
+
+    // 사용자가 입력을 멈추고 1.5초가 지나면 자동으로 false로 변경
+    clearTimeout(typingTimeout);
+    typingTimeout = setTimeout(() => {
+        db.ref(`typing/${myName}`).set(false);
+    }, 1500);
+}
 
 // ========================================================
 // 4. 구글 로그인 시스템
@@ -176,9 +187,9 @@ function loadChatData() {
                 div.classList.add('mention');
             }
 
-            // 🛠️ 이미지 주소(data.imgUrl) 확인 로직 완전히 빼고, 형이 치는 순수 텍스트(data.msg)만 깔끔하게 출력!
             const bubbleContent = data.msg;
 
+            // 🛠️ 대화창 엘리먼트 생성시 고유 데이터 키(data-key) 주입
             div.innerHTML = `
                 <div class="sender">${data.sender}</div>
                 <div class="message-content-wrapper">
@@ -190,6 +201,21 @@ function loadChatData() {
                 </div>
             `;
 
+            // 🔒 내가 작성한 글에만 '꾹 누르기(롱프레스)' 터치 이벤트 리스너 작동장치 부여
+            if (data.sender === myName) {
+                const bubbleElement = div.querySelector('.bubble');
+                
+                // 모바일 터치 이벤트
+                bubbleElement.addEventListener('touchstart', (e) => startLongPress(e, messageKey));
+                bubbleElement.addEventListener('touchend', cancelLongPress);
+                bubbleElement.addEventListener('touchmove', cancelLongPress);
+
+                // PC 마우스 테스트용 이벤트
+                bubbleElement.addEventListener('mousedown', (e) => startLongPress(e, messageKey));
+                bubbleElement.addEventListener('mouseup', cancelLongPress);
+                bubbleElement.addEventListener('mouseleave', cancelLongPress);
+            }
+
             chatBox.appendChild(div);
         });
         
@@ -199,6 +225,18 @@ function loadChatData() {
             }, 0);
         });
     });
+}
+
+// ⏳ 꾹 누르기 감지 타이머 세팅 (800ms 유지시 삭제 기능 호출)
+function startLongPress(e, key) {
+    longPressTimeout = setTimeout(() => {
+        if (navigator.vibrate) navigator.vibrate(50); // 꾹 누를 때 손맛용 진동
+        showDeleteConfirm(key); // 삭제 팝업 호출
+    }, 800);
+}
+
+function cancelLongPress() {
+    clearTimeout(longPressTimeout);
 }
 
 // ========================================================
@@ -247,7 +285,6 @@ function listenTyping() {
         const typingData = snapshot.val() || {};
         const typingUsers = [];
 
-        // 내가 아닌 다른 사람이 입력 중인 경우만 추출
         Object.keys(typingData).forEach(user => {
             if (user !== myName && typingData[user] === true) {
                 typingUsers.push(user);
@@ -258,11 +295,9 @@ function listenTyping() {
         if (!typingIndicator) return;
 
         if (typingUsers.length > 0) {
-            // 다른 사람이 입력 중일 때 화면에 출력
             typingIndicator.innerText = `${typingUsers.join(', ')}님이 입력 중... 💬`;
             typingIndicator.style.display = 'block';
         } else {
-            // 아무도 입력 중이 아니면 숨김
             typingIndicator.innerText = '';
             typingIndicator.style.display = 'none';
         }
@@ -284,7 +319,6 @@ function sendCall(target) {
     showToast(target + " 호출 완료!");
 }
 
-// 토스트 메시지 띄우기
 function showToast(msg) {
     const toast = document.getElementById('toast');
     if (!toast) return;
@@ -296,7 +330,6 @@ function showToast(msg) {
     }, 2000);
 }
 
-// 메시지 전송
 function sendMessage(text) {
     if (!myName) return;
     let mention = null;
@@ -315,12 +348,10 @@ function sendMessage(text) {
         readUsers: initialReadUsers 
     });
 
-    // 메시지 전송이 완료되면 내 타이핑 상태를 즉시 false로 변경 및 타이머 클리어
     clearTimeout(typingTimeout);
     db.ref(`typing/${myName}`).set(false);
 }
 
-// 엔터키 제어
 function handleEnter(e) {
     if (e.key === 'Enter') {
         const input = document.getElementById('chatInput');
@@ -331,7 +362,6 @@ function handleEnter(e) {
     }
 }
 
-// 알림 모달 & 푸시 알림 제어
 function showAlert(title, msg, vibrate = false) {
     document.getElementById('alertTitle').innerText = title;
     document.getElementById('alertMessage').innerText = msg;
@@ -353,7 +383,6 @@ function showAlert(title, msg, vibrate = false) {
     }
 }
 
-// 공용 버튼 제어 및 10초 딜레이
 function sendAlert(type) {
     if (!myName) return;
     const now = Date.now();
@@ -378,6 +407,33 @@ function closeAlert() {
     document.getElementById('customAlert').classList.remove('show');
 }
 
+// 🛠️ 삭제 확인 모달 제어 및 실시간 DB 삭제 함수
+let targetMessageKey = null;
+function showDeleteConfirm(key) {
+    targetMessageKey = key;
+    document.getElementById('deleteAlert').classList.add('show');
+}
+
+function closeDeleteConfirm() {
+    targetMessageKey = null;
+    document.getElementById('deleteAlert').classList.remove('show');
+}
+
+function deleteMessage() {
+    if (!targetMessageKey) return;
+    
+    // Firebase Realtime Database에서 해당 메시지 노드 즉시 삭제
+    db.ref(`chat/${targetMessageKey}`).remove()
+        .then(() => {
+            showToast("메시지가 삭제되었습니다.");
+            closeDeleteConfirm();
+        })
+        .catch((error) => {
+            console.error("삭제 실패:", error);
+            closeDeleteConfirm();
+        });
+}
+
 // ========================================================
 // 8. 테마 모드 제어 스위치 함수 (여름모드 <-> 다크모드)
 // ========================================================
@@ -396,7 +452,6 @@ function toggleTheme() {
     }
 }
 
-// 기존 테마 세팅 로드
 window.addEventListener('load', () => {
     const savedTheme = localStorage.getItem('theme');
     const btn = document.getElementById('theme-toggle-btn');
@@ -405,5 +460,3 @@ window.addEventListener('load', () => {
         if (btn) btn.innerText = "🌊 여름모드 전환";
     }
 });
-
-// 🛠️ 9번 이미지 업로드(uploadImage) 통째로 영구 삭제 완료!

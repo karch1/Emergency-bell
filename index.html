@@ -42,9 +42,9 @@
 
             <div class="status-setter-container" style="display: flex; align-items: center; gap: 6px; background: rgba(255, 255, 255, 0.25); padding: 6px 10px; border-radius: 12px; margin-top: 2px;">
                 <span class="status-label" style="font-size: 11px; font-weight: 700; color: #fff;">내 상태:</span>
-                <button class="status-tag-btn status-online" onclick="changeMyStatus('🟢 업무중')">🟢 업무중</button>
+                <button class="status-tag-btn status-online" onclick="changeMyStatus('🟢 쉬는중')">🟢 쉬는중</button>
                 <button class="status-tag-btn status-busy" onclick="changeMyStatus('🔴 통화중')">🔴 통화중</button>
-                <button class="status-tag-btn status-driving" onclick="changeMyStatus('🟡 운전중')">🟡 운전중</button>
+                <button class="status-tag-btn status-driving" onclick="changeMyStatus('🟡 업무중')">🟡 업무중</button>
             </div>
 
             <div id="status-monitor-board" style="display: flex; justify-content: space-around; background: rgba(0, 0, 0, 0.15); padding: 6px; border-radius: 10px; font-size: 11px; font-weight: bold; color: #ffffff; margin-top: 2px;"></div>
@@ -88,7 +88,7 @@
         <div class="alert-box" style="border-top: 5px solid #ffab40; max-width: 280px;">
             <div style="font-size: 18px; font-weight: bold; color: #333; margin-bottom: 10px;">🎯 당첨자 발표 🎯</div>
             <div id="randomResultName" style="font-size: 26px; font-weight: 900; color: #ffab40; margin: 15px 0; padding: 10px; background: #fff3e0; border-radius: 12px; border: 1px dashed #ffab40;">-</div>
-            <div style="font-size: 13px; color: #666; margin-bottom: 15px;">오늘의 행운아(혹은 독박)는 바로 당신맨! 🎉</div>
+            <div style="font-size: 13px; color: #666; margin-bottom: 15px;">오늘의 행운아는 바로! 🎉</div>
             <button onclick="closeRandomModal()" style="background: #0f4c5c; color: white; padding: 10px 20px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; width: 100%;">확인맨! (닫기)</button>
         </div>
     </div>

@@ -67,7 +67,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 listenCalls();
                 listenTyping(); // 실시간 타이핑 중인 사람 감시 리스너 실행
                 
-                // 🚀 화면이 확실히 block으로 켜진 직후에 입력창 이벤트를 바인딩해줍니다!
+                // 화면이 확실히 block으로 켜진 직후에 입력창 이벤트를 바인딩
                 initTypingEvent();
                 
             } else {
@@ -189,10 +189,13 @@ function loadChatData() {
 
             const bubbleContent = data.msg;
 
-            // 🛠️ 대화창 엘리먼트 생성시 고유 데이터 키(data-key) 주입
+            // 🔒 내가 작성한 글일 때만 빠른 삭제 미니 x 버튼 마크업 주입
+            const deleteBtnMarkup = (data.sender === myName) ? `<span class="quick-delete-btn" onclick="showDeleteConfirm('${messageKey}')">x 삭제</span>` : '';
+
             div.innerHTML = `
                 <div class="sender">${data.sender}</div>
                 <div class="message-content-wrapper">
+                    ${deleteBtnMarkup}
                     <div class="bubble">${bubbleContent}</div>
                     <div class="time-and-count">
                         ${unreadMarkup}
@@ -201,16 +204,14 @@ function loadChatData() {
                 </div>
             `;
 
-            // 🔒 내가 작성한 글에만 '꾹 누르기(롱프레스)' 터치 이벤트 리스너 작동장치 부여
+            // 내가 작성한 글에 꾹 누르기 기능도 하이브리드로 작동 유지
             if (data.sender === myName) {
                 const bubbleElement = div.querySelector('.bubble');
                 
-                // 모바일 터치 이벤트
                 bubbleElement.addEventListener('touchstart', (e) => startLongPress(e, messageKey));
                 bubbleElement.addEventListener('touchend', cancelLongPress);
                 bubbleElement.addEventListener('touchmove', cancelLongPress);
 
-                // PC 마우스 테스트용 이벤트
                 bubbleElement.addEventListener('mousedown', (e) => startLongPress(e, messageKey));
                 bubbleElement.addEventListener('mouseup', cancelLongPress);
                 bubbleElement.addEventListener('mouseleave', cancelLongPress);
@@ -230,8 +231,8 @@ function loadChatData() {
 // ⏳ 꾹 누르기 감지 타이머 세팅 (800ms 유지시 삭제 기능 호출)
 function startLongPress(e, key) {
     longPressTimeout = setTimeout(() => {
-        if (navigator.vibrate) navigator.vibrate(50); // 꾹 누를 때 손맛용 진동
-        showDeleteConfirm(key); // 삭제 팝업 호출
+        if (navigator.vibrate) navigator.vibrate(50);
+        showDeleteConfirm(key);
     }, 800);
 }
 
@@ -280,6 +281,7 @@ function listenCalls() {
     });
 }
 
+// 실시간 타인 타이핑 감지 리스너
 function listenTyping() {
     db.ref('typing').on('value', (snapshot) => {
         const typingData = snapshot.val() || {};
@@ -422,7 +424,6 @@ function closeDeleteConfirm() {
 function deleteMessage() {
     if (!targetMessageKey) return;
     
-    // Firebase Realtime Database에서 해당 메시지 노드 즉시 삭제
     db.ref(`chat/${targetMessageKey}`).remove()
         .then(() => {
             showToast("메시지가 삭제되었습니다.");
